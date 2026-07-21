@@ -24,7 +24,7 @@ years_config:
   
   # Manual list of years (used when method is "manual" or "all_scenarios_plus_manual")
   years_to_generate:
-    - 2015
+    - 2010
   
   # Additional years to always include regardless of method
   always_include: []  # Remove 2020 to focus on 2021 only

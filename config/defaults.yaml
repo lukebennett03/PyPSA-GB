@@ -16,7 +16,7 @@ voll: 6000.0                      # Value of Lost Load (£/MWh)
 # SOLVER CONFIGURATION
 # ──────────────────────────────────────────────────────────────────────────────
 solver:
-  name: "gurobi"                  # Options: gurobi, highs, glpk, cplex
+  name: "highs"                  # Options: gurobi, highs, glpk, cplex
   threads: 4
   method: 2                       # 0=primal, 1=dual, 2=barrier
   crossover: 0                    # 0=disabled (faster), -1=auto (enables crossover)
