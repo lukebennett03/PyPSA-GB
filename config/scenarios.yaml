@@ -415,6 +415,50 @@ HT35_reduced:
     start: "2035-01-01 00:00"
     end: "2035-01-07 23:00"
 
+HT35_reduced_nuclear_inflexible:
+  description: "FES 2024 Holistic Transition 2035 - Reduced Network with additional nuclear constarints. Near copy of HT35_reduced to come with nuclear flexible."
+  modelled_year: 2035
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2020
+  demand_year: 2010
+  network_model: "Reduced"
+
+  solve_period:
+    enabled: true
+    start: "2035-01-01 00:00"
+    end: "2035-01-07 23:00"
+
+  nuclear_operation:
+    enabled: true
+    min_output: 0.90
+    ramp_limit: 0.01
+
+  optimization:
+    remove_must_run: false
+
+HT35_reduced_nuclear_flexible:
+  description: "FES 2024 Holistic Transition 2035 - Reduced Network with additional nuclear constarints to simulate French style system"
+  modelled_year: 2035
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2020
+  demand_year: 2010
+  network_model: "Reduced"
+
+  solve_period:
+    enabled: true
+    start: "2035-01-01 00:00"
+    end: "2035-01-07 23:00"
+
+  nuclear_operation:
+    enabled: true
+    min_output: 0.20
+    ramp_limit: 0.025
+
+  optimization:
+    remove_must_run: false
+
 HT35_reduced_eload:
   description: "FES 2024 HT 2035 - Reduced Network with eLOAD profile"
   modelled_year: 2035
