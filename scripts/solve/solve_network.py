@@ -17,6 +17,7 @@ from scripts.solve.hydro_constraints import (
     combine_extra_functionalities,
     log_hydro_constraint_setup,
 )
+from scripts.utilities.generator_operation import configure_nuclear
 
 # Fast I/O for network loading/saving
 from scripts.utilities.network_io import load_network, save_network
@@ -44,49 +45,6 @@ RENEWABLE_CARRIERS = {
     "marine",
     "geothermal",
 }
-
-def configure_nuclear(network, min_output, ramp_limit):
-    """
-    Configure different levels of nuclear flexibility.
-    Currently, don't constrain time limits e.g. only
-    ramp up/down set times within a day.
-
-    Parameters
-    ----------
-    network: pypsa.Network
-        PyPSA network with bus coordinates
-    min_output: float, 0 <= x <= 1
-        Normalised percentage of max output
-    ramp_limit: float
-        Maximum rate of increase/decrease
-
-    Returns
-    -------
-    pypsa.Network
-        Network with adjusted nuclear
-    """
-    min_output = float(min_output)
-    ramp_limit = float(ramp_limit)
-
-    if not 0.0 <= min_output <= 1.0:
-        raise ValueError(
-            "min_output must be between 0 and 1."
-        )
-
-    if not 0.0 <= ramp_limit <= 1.0:
-        raise ValueError(
-            "ramp_limit must be between 0 and 1."
-        )
-
-    nuclear = network.generators.carrier.eq("nuclear")
-
-    network.generators.loc[nuclear, "p_nom_extendable"] = False  # Prevent model extending capacity during generation
-    network.generators.loc[nuclear, "committable"] = False
-    network.generators.loc[nuclear, "p_min_pu"] = min_output
-    network.generators.loc[nuclear, "ramp_limit_up"] = ramp_limit
-    network.generators.loc[nuclear, "ramp_limit_down"] = ramp_limit
-
-    return network
 
 def get_solve_mode_from_config() -> str:
     """
@@ -2067,8 +2025,6 @@ if __name__ == "__main__":
                         "p_min_pu",
                         "ramp_limit_up",
                         "ramp_limit_down",
-                        "p_nom_extendable",
-                        "committable",
                     ],
                 ]
                 .drop_duplicates()
