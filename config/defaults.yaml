@@ -1195,3 +1195,45 @@ demand_flexibility:
     max_reduction_fraction: 0.10      # Fallback: max demand reduction per event (10%)
     marginal_cost: 100.0              # DSR incentive payment (£/MWh) - high cost = only dispatch if needed
     winter_months: [10, 11, 12, 1, 2, 3]  # Oct-Mar for winter mode
+
+# ──────────────────────────────────────────────────────────────────────────────
+# NUCLEAR THERMAL ENERGY STORAGE (TES-SSRC)
+# ──────────────────────────────────────────────────────────────────────────────
+# Storage-coupled nuclear flexibility after Al Kindi et al. (2022, 2023).
+# The reactor runs at constant thermal power; steam is diverted to phase-change
+# thermal stores and recovered through secondary Rankine cycles.
+# Enabled for now. Disable on pull request
+nuclear_tes:
+  enabled: true
+
+  # Nuclear island and primary cycle
+  reactor_p_nom_th: 4520          # MW thermal (EPR)
+  psrc_efficiency: 0.356          # 4520 x 0.356 = 1610 MW electrical
+  psrc_p_min_pu: 0.50             # turbine part-load floor
+  fuel_cost_per_mwh_th: null      # GBP/MWh_th; constant output, so cannot
+                                  # affect dispatch
+
+  # A "module" is the PAIR of storage units below, matching the two TES/SSRC
+  # trains in the source. 5 x (57.7 + 46.2) = 520 MW additional output.
+  modules_per_reactor: 5
+
+  storage_units:
+    unit_1:
+      tes_e_nom_mwh_th: 195       # MWh thermal
+      charge_p_nom_mw_th: 217     # 217 x 1h x 0.90 = 195 MWh
+      charge_efficiency: 0.90
+      ssrc_p_nom_mw_th: 195       # thermal, at bus0
+      ssrc_efficiency: 0.296      # 195 x 0.296 = 57.7 MW electrical
+    unit_2:
+      tes_e_nom_mwh_th: 195
+      charge_p_nom_mw_th: 217
+      charge_efficiency: 0.90
+      ssrc_p_nom_mw_th: 195
+      ssrc_efficiency: 0.237      # 195 x 0.237 = 46.2 MW electrical
+
+
+  sites: []                       # bus or generator names; empty disables
+
+  carriers:
+    steam: nuclear_steam
+    storage: nuclear_tes
