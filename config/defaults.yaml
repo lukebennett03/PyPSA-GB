@@ -1204,7 +1204,7 @@ demand_flexibility:
 # thermal stores and recovered through secondary Rankine cycles.
 # Enabled for now. Disable on pull request
 nuclear_tes:
-  enabled: true
+  enabled: false
 
   # Nuclear island and primary cycle
   reactor_p_nom_th: 4520          # MW thermal (EPR)
@@ -1215,6 +1215,9 @@ nuclear_tes:
 
   # A "module" is the PAIR of storage units below, matching the two TES/SSRC
   # trains in the source. 5 x (57.7 + 46.2) = 520 MW additional output.
+  # NOTE: modules_per_reactor: 0 builds the COUNTERFACTUAL - reactor and PSRC
+  # only, no storage. Pairing a 0-module scenario with a 5-module scenario
+  # guarantees the two runs differ solely in flexibility.
   modules_per_reactor: 5
 
   storage_units:
@@ -1231,8 +1234,43 @@ nuclear_tes:
       ssrc_p_nom_mw_th: 195
       ssrc_efficiency: 0.237      # 195 x 0.237 = 46.2 MW electrical
 
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Siting
+  # ──────────────────────────────────────────────────────────────────────────────
+  # FES allocates nuclear across ~20 buses as a spatial smear rather than as
+  # identified plants, so the flexible reactor has to be designated. Under
+  # copperplate dispatch the choice is immaterial; it becomes
+  # the hypothesis under test once transmission constraints are active.
+  target_generator: null          # FES nuclear generator to designate as the EPR
 
-  sites: []                       # bus or generator names; empty disables
+  # How to reconcile the 1610 MW EPR with the FES nuclear it replaces:
+  #   compensate - remove target, add EPR, scale remaining nuclear pro-rata so
+  #                system total is unchanged (keeps the run FES-consistent)
+  #   replace    - remove target, add EPR, no compensation (total rises)
+  #   add        - keep target, add EPR alongside
+  fes_nuclear_handling: compensate
+
+  # Fix p_nom_extendable False on the target so its capacity is known before
+  # the solve and is identical across counterfactual and flexible runs.
+  fix_target_capacity: true
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Module scaling
+  # ──────────────────────────────────────────────────────────────────────────────
+  # False keeps the literal EPR figures above, aligning with the source paper.
+  # True would scale module capacities to the target plant's own rating,
+  # preserving the storage-to-capacity ratio instead of the absolute values.
+  scale_to_plant: false
+  reference_p_nom_el: 1610        # EPR capacity the module figures refer to
+
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Capacity expansion
+  # ──────────────────────────────────────────────────────────────────────────────
+  # Null means fixed capacity. Populate to reproduce Al Kindi et al. (2023),
+  # where TES and SSRC sizing becomes a decision variable.
+  extendable: false
+  tes_capital_cost_gbp_per_kwh: null      # 25
+  ssrc_capital_cost_gbp_per_kw_e: null    # 965
 
   carriers:
     steam: nuclear_steam
