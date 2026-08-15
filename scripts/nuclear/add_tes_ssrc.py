@@ -11,7 +11,6 @@ import warnings
 import yaml
 from typing import Optional
 
-from astroid.nodes import Raise
 from pandas import DataFrame
 
 # Fast I/O for network loading/saving
@@ -497,7 +496,7 @@ def _add_module(
         tes_bus = cell["bus"]
 
         # Build TES charging link
-        network.add("Link", f"TES_{cell["charge"]}",
+        network.add("Link", cell["charge"],
                     bus0=steam_bus,
                     bus1=tes_bus,
                     carrier=resolved_carriers["charge"],
@@ -505,14 +504,14 @@ def _add_module(
                     p_nom=params["charge_p_nom_mw_th"],)
 
         # Build TES storage
-        network.add("Store", f"TES_{cell["store"]}",
+        network.add("Store", cell["store"],
                     bus=tes_bus,
                     carrier=resolved_carriers["storage"],
                     e_nom=params["tes_e_nom_mwh_th"],
                     e_cyclic=True)
 
         # Build SSRC link (discharge)
-        network.add("Link", f"SSRC_{cell["discharge"]}",
+        network.add("Link", cell["discharge"],
                     bus0=tes_bus,
                     bus1=elec_bus,
                     carrier=resolved_carriers["ssrc"],
@@ -524,15 +523,329 @@ def _add_module(
 
 def _validate(
         network: pypsa.Network,
-):
+        target_dict: dict,
+        carriers: dict,
+        modules: int,
+        storage_units: dict,
+        cfg: dict,
+        nuclear_summary: dict,
+        names: dict
+) -> dict:
     """
     This function will be used to validate final modular setup. Staged for development
+
     Args:
         network:
 
     Returns:
 
     """
+    target_reactor = target_dict["name"]
+
+    # -------------------------------------------------------------------------
+    # Check all new components exist
+    # -------------------------------------------------------------------------
+    # _names knows every component the build should have produced, so checking
+    # that set against the network validates the names as well as the count.
+    # A component created with a hand-built name rather than via _cell_names
+    # shows up here as missing.
+    #
+    # Charge and discharge links share network.links - PyPSA keeps one frame
+    # per component type, and both are Links.
+    frames = {
+        "buses": network.buses.index,
+        "stores": network.stores.index,
+        "charges": network.links.index,
+        "discharges": network.links.index,
+    }
+
+    missing = {}
+
+    for key, expected_names in names.items():
+        present = frames[key]
+        absent = [name for name in expected_names if name not in present]
+
+        if absent:
+            missing[key] = {
+                "expected": len(expected_names),
+                "found": len(expected_names) - len(absent),
+                "absent": absent,
+            }
+
+    if missing:
+        detail = "; ".join(
+            f"{key}: {info['found']} of {info['expected']} present, "
+            f"missing {info['absent']}"
+            for key, info in missing.items()
+        )
+        raise ValueError(
+            f"{target_reactor}: expected components absent from network - {detail}"
+        )
+
+    logger.info(
+        f"{target_reactor}: all "
+        f"{sum(len(v) for v in names.values())} expected components present"
+    )
+
+    # -------------------------------------------------------------------------
+    # No unexpected extras
+    # -------------------------------------------------------------------------
+    # The existence check above catches missing components; this catches extra
+    # ones - duplicates from a re-run, or spurious additions. Together they pin
+    # the set exactly.
+    expected_per_carrier = {
+        carriers["charge"]: modules * len(storage_units),
+        carriers["ssrc"]: modules * len(storage_units),
+        carriers["psrc"]: 1,
+    }
+
+    for carrier, expected in expected_per_carrier.items():
+        found = (network.links.carrier == carrier).sum()
+        if found != expected:
+            raise ValueError(
+                f"{target_reactor}: expected {expected} links with carrier "
+                f"{carrier}, found {found}"
+            )
+
+    n_stores = (network.stores.carrier == carriers["storage"]).sum()
+    if n_stores != modules * len(storage_units):
+        raise ValueError(
+            f"{target_reactor}: expected {modules * len(storage_units)} stores, "
+            f"found {n_stores}"
+        )
+
+    # -------------------------------------------------------------------------
+    # Referential integrity
+    # -------------------------------------------------------------------------
+    # PyPSA creates links to nonexistent buses without complaint. The failure
+    # surfaces only at solve time, with an error that does not name the cause.
+    dangling = []
+
+    for store, bus in network.stores["bus"].items():
+        if bus not in network.buses.index:
+            dangling.append(f"Store {store} -> {bus}")
+
+    for column in ("bus0", "bus1"):
+        for link, bus in network.links[column].items():
+            if bus not in network.buses.index:
+                dangling.append(f"Link {link}.{column} -> {bus}")
+
+    if dangling:
+        raise ValueError(
+            f"{target_reactor}: components reference missing buses - {dangling}"
+        )
+
+    # -------------------------------------------------------------------------
+    # Reactor holds constant thermal output
+    # -------------------------------------------------------------------------
+    # p_min_pu == p_max_pu == 1.0 is what makes this storage-coupled rather than
+    # direct reactor flexing. Without it the optimiser throttles the reactor
+    reactor = f"{target_reactor}_reactor"
+
+    if reactor not in network.generators.index:
+        raise ValueError(f"{reactor} not found in network")
+
+    reactor_row = network.generators.loc[reactor]
+
+    if not (reactor_row["p_min_pu"] == 1.0 and reactor_row["p_max_pu"] == 1.0):
+        raise ValueError(
+            f"{reactor}: expected p_min_pu = p_max_pu = 1.0, found "
+            f"{reactor_row['p_min_pu']} and {reactor_row['p_max_pu']}"
+        )
+
+    if reactor_row["p_nom"] != cfg["reactor_p_nom_th"]:
+        raise ValueError(
+            f"{reactor}: expected p_nom {cfg['reactor_p_nom_th']} MW_th, "
+            f"found {reactor_row['p_nom']}"
+        )
+
+    # The rescaling in _handle_fes_nuclear filters on carrier "nuclear". If the
+    # reactor carried it, a re-run would shrink the EPR along with the fleet.
+    if reactor_row["carrier"] == "nuclear":
+        raise ValueError(
+            f"{reactor}: carrier must differ from 'nuclear' or fleet rescaling "
+            f"will catch it"
+        )
+
+    # -------------------------------------------------------------------------
+    # Capacity arithmetic
+    # -------------------------------------------------------------------------
+    # Link p_nom is thermal and measured at bus0; electrical output is
+    # p_nom x efficiency. Catches the p_nom / p_nom_th class of error, where a
+    # link silently ends up with zero capacity and the model still solves.
+    psrc = network.links.loc[f"{target_reactor}_psrc"]
+    psrc_el = psrc["p_nom"] * psrc["efficiency"]
+    expected_psrc_el = cfg["reactor_p_nom_th"] * cfg["psrc_efficiency"]
+
+    if abs(psrc_el - expected_psrc_el) > 1.0:
+        raise ValueError(
+            f"PSRC delivers {psrc_el:.1f} MW_e, expected {expected_psrc_el:.1f}"
+        )
+
+    ssrc_links = network.links[network.links.carrier == carriers["ssrc"]]
+    ssrc_el = (ssrc_links["p_nom"] * ssrc_links["efficiency"]).sum()
+    expected_ssrc_el = modules * sum(
+        u["ssrc_p_nom_mw_th"] * u["ssrc_efficiency"] for u in storage_units.values()
+    )
+
+    if abs(ssrc_el - expected_ssrc_el) > 1.0:
+        raise ValueError(
+            f"SSRC delivers {ssrc_el:.1f} MW_e, expected {expected_ssrc_el:.1f}"
+        )
+
+    # -------------------------------------------------------------------------
+    # Coordinates
+    # -------------------------------------------------------------------------
+    # NaN coordinates break spatial plotting and can misplace buses during
+    # clustering, separating the stores from the reactor they belong to.
+    new_buses = network.buses[
+        network.buses.carrier.isin([carriers["steam"], carriers["storage"]])
+    ]
+
+    no_coords = new_buses[new_buses[["x", "y"]].isna().any(axis=1)]
+
+    if not no_coords.empty:
+        raise ValueError(
+            f"{target_reactor}: buses without coordinates - "
+            f"{no_coords.index.tolist()}"
+        )
+
+    # -------------------------------------------------------------------------
+    # Nuclear capacity preserved
+    # -------------------------------------------------------------------------
+    # The sole purpose of the rescaling in _handle_fes_nuclear.
+    before = nuclear_summary["total_before"]
+    after = nuclear_summary["total_after"]
+
+    if abs(after - before) > 1.0:
+        raise ValueError(
+            f"Nuclear capacity changed: {before:.1f} MW before, "
+            f"{after:.1f} MW after (scale factor "
+            f"{nuclear_summary['scale_factor']:.4f})"
+        )
+
+    # -------------------------------------------------------------------------
+    # PyPSA structural check
+    # -------------------------------------------------------------------------
+    network.consistency_check()
+
+    summary = {
+        "components_checked": sum(len(v) for v in names.values()),
+        "psrc_mw_el": psrc_el,
+        "ssrc_mw_el": ssrc_el,
+        "plant_max_mw_el": psrc_el + ssrc_el,
+        "nuclear_total_mw": after,
+    }
+
+    return summary
+
+def build_modules(
+        network: pypsa.Network,
+        target_generator: str,
+        modules: int,
+        storage_units: dict,
+        cfg
+) -> pypsa.Network:
+    """
+    Build a network containing modular setup.
+
+    Args:
+        network: PyPSA network
+        target_generator: Target generator for flex
+        modules: Number of modules to use
+        storage_units: Mapping of unit key to its parameters, from config
+        cfg: Configuration file
+
+    Returns:
+        Modified network
+    """
+    # -------------------------------------------------------------------------
+    # Extract key info about target generator
+    # -------------------------------------------------------------------------
+    target_generator_dict = _resolve_target(
+        network,
+        target_generator=target_generator
+    )
+
+    # -------------------------------------------------------------------------
+    # Extract module names
+    # -------------------------------------------------------------------------
+    names = _names(
+        gen=target_generator,
+        modules=modules,
+        units=storage_units,
+    )
+    logger.info(f"Names of built components: {names}")
+
+    # -------------------------------------------------------------------------
+    # Build and extract carriers
+    # -------------------------------------------------------------------------
+    carriers = _add_carrier(
+        network=network,
+        cfg=cfg,
+    )
+
+    # -------------------------------------------------------------------------
+    # Build all busses and extract the steam bus
+    # -------------------------------------------------------------------------
+    steam_bus = _add_busses(
+        network=network,
+        target_dict=target_generator_dict,
+        carriers=carriers,
+        modules=modules,
+        units=storage_units,
+    )
+
+    # -------------------------------------------------------------------------
+    # Re-configure nuclear reactors
+    # -------------------------------------------------------------------------
+    new_nuclear_summary = _handle_fes_nuclear(
+        network=network,
+        target_dict=target_generator_dict,
+        cfg=cfg,
+    )
+    logger.info(f"New nuclear summary: {new_nuclear_summary}")
+
+    # -------------------------------------------------------------------------
+    # Build reactor and PSRC
+    # -------------------------------------------------------------------------
+    _add_reactor_psrc(
+        network=network,
+        steam_bus=steam_bus,
+        resolved_carriers=carriers,
+        cfg=cfg,
+        target_dict=target_generator_dict,
+    )
+
+    # -------------------------------------------------------------------------
+    # Build the modules
+    # -------------------------------------------------------------------------
+    for module in range(1, modules + 1):
+        _add_module(
+            network=network,
+            target_dict=target_generator_dict,
+            module=module,
+            storage_units=storage_units,
+            steam_bus=steam_bus,
+            resolved_carriers=carriers
+        )
+
+    # -------------------------------------------------------------------------
+    # Validate results
+    # -------------------------------------------------------------------------
+    validation_info = _validate(
+        network=network,
+        target_dict=target_generator_dict,
+        carriers=carriers,
+        modules=modules,
+        storage_units=storage_units,
+        cfg=cfg,
+        nuclear_summary=new_nuclear_summary,
+        names=names,
+    )
+
+    logger.info(f"{target_generator}: validation passed - {validation_info}")
+    return network
 
 
 # =============================================================================
@@ -576,77 +889,99 @@ def build_tes_ssrc(
     logger.info(f"Building {modules_per_reactor} modules of "
                 f"{len(storage_units)} units at {flex_generator}")
 
-    # -------------------------------------------------------------------------
-    # Extract key info about target generator
-    # -------------------------------------------------------------------------
-    target_generator_dict = _resolve_target(
-        network,
-        target_generator=flex_generator
-    )
-
-    # -------------------------------------------------------------------------
-    # Extract module names
-    # -------------------------------------------------------------------------
-    names = _names(
-        gen=flex_generator,
+    # Build network with modules added
+    modular_network = build_modules(
+        network=network,
+        target_generator=flex_generator,
         modules=modules_per_reactor,
-        units=storage_units,
-    )
-
-    # -------------------------------------------------------------------------
-    # Build and extract carriers
-    # -------------------------------------------------------------------------
-    carriers = _add_carrier(
-        network=network,
+        storage_units=storage_units,
         cfg=tes_config,
     )
 
+    return modular_network
+
+
+if __name__ == "__main__":
     # -------------------------------------------------------------------------
-    # Build all busses and extract the steam bus
+    # Load unsolved network
     # -------------------------------------------------------------------------
-    steam_bus = _add_busses(
+    REPO_ROOT = Path(__file__).resolve().parents[2]
+    network = pypsa.Network(REPO_ROOT / "resources" / "network" / "HT35_reduced.nc")
+
+    # Set solve period to first week of Jan
+    network.set_snapshots(network.snapshots[:168])
+
+    # -------------------------------------------------------------------------
+    # Configure TES-SSRC modules on unsolved network
+    # -------------------------------------------------------------------------
+    # Get TES-SSRC config
+    tes_config = {**load_tes_config(), "enabled": True,
+                  "target_generator": "FES_nuclear_NGET_Melksham"}
+
+    # Construct TES-SSRC modules on network
+    network_with_modules = build_tes_ssrc(
         network=network,
-        target_dict=target_generator_dict,
-        carriers=carriers,
-        modules=modules_per_reactor,
-        units=storage_units,
+        tes_config=tes_config,
     )
 
-    # -------------------------------------------------------------------------
-    # Re-configure nuclear reactors
-    # -------------------------------------------------------------------------
-    new_nuclear_summary = _handle_fes_nuclear(
-        network=network,
-        target_dict=target_generator_dict,
-        cfg=tes_config,
+    # Filter to new carrier
+    carriers = _add_carrier(network_with_modules, tes_config)
+    new = set(carriers.values())
+
+    # Inspect the constructed network
+    pd.set_option("display.width", 200)
+    pd.set_option("display.max_columns", 30)
+
+    # New components filtered by new carriers
+    buses = network_with_modules.buses[network_with_modules.buses.carrier.isin(new)]
+    links = network_with_modules.links[network_with_modules.links.carrier.isin(new)]
+    stores = network_with_modules.stores[network_with_modules.stores.carrier.isin(new)]
+    gens = network_with_modules.generators[network_with_modules.generators.carrier.isin(new)]
+
+    # Inspect
+    print("\n--- BUSES ---")
+    print(buses[["carrier", "x", "y", "v_nom"]])
+
+    print("\n--- LINKS ---")
+    print(
+        links[["bus0", "bus1", "carrier", "p_nom", "efficiency"]]
+        .assign(mw_el=lambda d: d.p_nom * d.efficiency)
     )
 
-    # -------------------------------------------------------------------------
-    # Build reactor and PSRC
-    # -------------------------------------------------------------------------
-    _add_reactor_psrc(
-        network=network,
-        steam_bus=steam_bus,
-        resolved_carriers=carriers,
-        cfg=tes_config,
-        target_dict=target_generator_dict,
-    )
+    print("\n--- STORES ---")
+    print(stores[["bus", "carrier", "e_nom", "e_cyclic"]])
+
+    print("\n--- REACTOR ---")
+    print(gens[["bus", "carrier", "p_nom", "p_min_pu", "p_max_pu"]])
+
+    # Check nuclear capacity from original carriers. Should reveal a gap
+    # that is filled by flexible generator to make up total capacity
+    nuclear = network_with_modules.generators[network_with_modules.generators.carrier.str.casefold() == "nuclear"]
+    print(f"\nFleet: {len(nuclear)} generators, {nuclear.p_nom.sum():.1f} MW")
 
     # -------------------------------------------------------------------------
-    # Build the modules
+    # Solve network: Goal is to verify thermal output remains constant while
+    # electrical output is flexible
     # -------------------------------------------------------------------------
-    for module in range(1, modules_per_reactor + 1):
-        _add_module(
-            network=network,
-            target_dict=target_generator_dict,
-            module=module,
-            storage_units=storage_units,
-            steam_bus=steam_bus,
-            resolved_carriers=carriers
-        )
+    # Solve
+    status, condition = network_with_modules.optimize(solver_name="highs")
+    print(status, condition)
 
-    logger.info("Built TES-SSRC modules")
+    if status == "ok" and condition == "optimal":
+        n = network_with_modules
+        print("\n--- REACTOR ---")
+        print(n.generators_t.p["FES_nuclear_NGET_Melksham_reactor"].describe())
+        print(n.stores_t.e.describe())
 
-    return network
+        psrc = "FES_nuclear_NGET_Melksham_psrc"
+        ssrc = n.links[n.links.carrier == carriers["ssrc"]].index
+
+        print("\n--- STORES --- ")
+        # p1 is negative at the output bus, so negate for generation
+        elec = -(n.links_t.p1[psrc] + n.links_t.p1[ssrc].sum(axis=1))
+        print(elec.describe())
+
+
+
 
     
