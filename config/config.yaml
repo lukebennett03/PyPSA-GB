@@ -17,12 +17,13 @@
 # Multiple scenarios run in parallel based on Snakemake -j flag
 
 run_scenarios:
+  - HT35_reduced
 
   # ─── Tutorial scenarios used in documentation ───
-  - Historical_2015_reduced
-  - Historical_2023_etys
-  - HT35_clustered
-  - EE50_clustered
+  # - Historical_2015_reduced
+  # - Historical_2023_etys
+  # - HT35_clustered
+  # - EE50_clustered
 
   # ─── Test: 2020 with different network configurations ───
   # - Historical_2020_zonal       # Start with Zonal (17 zones, fastest)

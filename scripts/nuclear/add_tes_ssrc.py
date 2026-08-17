@@ -739,7 +739,7 @@ def _validate(
 
     return summary
 
-def build_modules(
+def _build_modules(
         network: pypsa.Network,
         target_generator: str,
         modules: int,
@@ -847,9 +847,88 @@ def build_modules(
     logger.info(f"{target_generator}: validation passed - {validation_info}")
     return network
 
+# =============================================================================
+# SCRIPT HELPERS
+# =============================================================================
+def _inspect(
+        network: pypsa.Network,
+        cfg: dict
+) -> None:
+    """
+    Check new network setup containing TEC-SSRC modules.
+
+    Args:
+        network: PyPSA network
+        cfg: Configuration file
+    """
+    # Filter to new carrier
+    carriers = _add_carrier(network, cfg)
+    new = set(carriers.values())
+
+    # Inspect the constructed network
+    pd.set_option("display.width", 200)
+    pd.set_option("display.max_columns", 30)
+
+    # New components filtered by new carriers
+    buses = network.buses[network.buses.carrier.isin(new)]
+    links = network.links[network.links.carrier.isin(new)]
+    stores = network.stores[network.stores.carrier.isin(new)]
+    gens = network.generators[network.generators.carrier.isin(new)]
+
+    # Inspect
+    logger.info("\n--- BUSES ---")
+    logger.info(buses[["carrier", "x", "y", "v_nom"]])
+
+    logger.info("\n--- LINKS ---")
+    logger.info(
+        links[["bus0", "bus1", "carrier", "p_nom", "efficiency"]]
+        .assign(mw_el=lambda d: d.p_nom * d.efficiency)
+    )
+
+    logger.info("\n--- STORES ---")
+    logger.info(stores[["bus", "carrier", "e_nom", "e_cyclic"]])
+
+    logger.info("\n--- REACTOR ---")
+    logger.info(gens[["bus", "carrier", "p_nom", "p_min_pu", "p_max_pu"]])
+
+    # Check nuclear capacity from original carriers. Should reveal a gap
+    # that is filled by flexible generator to make up total capacity
+    nuclear = network.generators[network.generators.carrier.str.casefold() == "nuclear"]
+    logger.info(f"\nFleet: {len(nuclear)} generators, {nuclear.p_nom.sum():.1f} MW")
+
+
+def _solve_and_report(
+        network: pypsa.Network,
+        cfg: dict
+) -> None:
+    """
+    Solve network: Goal is to verify thermal output remains constant while
+    electrical output is flexible.
+
+    Args:
+        network: PyPSA network
+        cfg: Configuration file
+    """
+    status, condition = network.optimize(solver_name="highs")
+    logger.info(f"{status}, {condition}")
+
+    if status == "ok" and condition == "optimal":
+        n = network
+        carriers = _add_carrier(network, cfg)
+        logger.info("\n--- REACTOR ---")
+        logger.info(n.generators_t.p["FES_nuclear_NGET_Melksham_reactor"].describe())
+        logger.info(n.stores_t.e.describe())
+
+        psrc = "FES_nuclear_NGET_Melksham_psrc"
+        ssrc = n.links[n.links.carrier == carriers["ssrc"]].index
+
+        logger.info("\n--- STORES --- ")
+        # p1 is negative at the output bus, so negate for generation
+        elec = -(n.links_t.p1[psrc] + n.links_t.p1[ssrc].sum(axis=1))
+        logger.info(elec.describe())
 
 # =============================================================================
-# BUILD MODULES
+# BUILD FULL MODULAR SETUP
 # =============================================================================
 def build_tes_ssrc(
         network: pypsa.Network,
@@ -882,15 +961,11 @@ def build_tes_ssrc(
     modules_per_reactor = tes_config["modules_per_reactor"]
     storage_units = tes_config["storage_units"]
 
-    carriers = tes_config.get("carriers", {})
-    steam_carrier = carriers.get("steam", "nuclear_steam")
-    storage_carrier = carriers.get("storage", "nuclear_tes")
-
     logger.info(f"Building {modules_per_reactor} modules of "
                 f"{len(storage_units)} units at {flex_generator}")
 
     # Build network with modules added
-    modular_network = build_modules(
+    modular_network = _build_modules(
         network=network,
         target_generator=flex_generator,
         modules=modules_per_reactor,
@@ -900,86 +975,62 @@ def build_tes_ssrc(
 
     return modular_network
 
+def main():
+    """Main entry point when run as script."""
 
-if __name__ == "__main__":
-    # -------------------------------------------------------------------------
-    # Load unsolved network
-    # -------------------------------------------------------------------------
-    REPO_ROOT = Path(__file__).resolve().parents[2]
-    network = pypsa.Network(REPO_ROOT / "resources" / "network" / "HT35_reduced.nc")
+    # Check if running under snakemake
+    if 'snakemake' in globals():
+        # Get inputs/outputs from Snakemake
+        network_file = snakemake.input.network
+        output_file = snakemake.output.network
+        tes_config = snakemake.params.nuclear_tes
+        smoke_test = False
 
-    # Set solve period to first week of Jan
-    network.set_snapshots(network.snapshots[:168])
+        # Get parameters
+        scenario = snakemake.params.scenario
 
-    # -------------------------------------------------------------------------
-    # Configure TES-SSRC modules on unsolved network
-    # -------------------------------------------------------------------------
-    # Get TES-SSRC config
-    tes_config = {**load_tes_config(), "enabled": True,
-                  "target_generator": "FES_nuclear_NGET_Melksham"}
+        logger.info(f"Adding TES-SSRC modular system for scenario: {scenario}")
+
+    else:
+        # Standalone testing
+        import argparse
+        parser = argparse.ArgumentParser(description="Add TES-SSRC modules to PyPSA network")
+        parser.add_argument("--network", required=True, help="Input network file")
+        parser.add_argument("--output", required=True, help="Output network file")
+        parser.add_argument("--target_generator", required=True, help="Target generator")
+        args = parser.parse_args()
+
+        network_file, output_file = args.network, args.output
+        tes_config = {**load_tes_config(), "enabled": True, "target_generator": args.target_generator}
+        smoke_test = True
+
+    # Load network
+    logger.info(f"Loading network from: {network_file}")
+    network = load_network(network_file)
+
+    if smoke_test:
+        # Set solve period to first week of Jan
+        network.set_snapshots(network.snapshots[:168])
 
     # Construct TES-SSRC modules on network
-    network_with_modules = build_tes_ssrc(
+    network = build_tes_ssrc(
         network=network,
         tes_config=tes_config,
     )
 
-    # Filter to new carrier
-    carriers = _add_carrier(network_with_modules, tes_config)
-    new = set(carriers.values())
+    if smoke_test:
+        _inspect(network=network, cfg=tes_config)
+        _solve_and_report(network=network, cfg=tes_config)
 
-    # Inspect the constructed network
-    pd.set_option("display.width", 200)
-    pd.set_option("display.max_columns", 30)
+    # Save network
+    logger.info(f"Saving network to: {output_file}")
+    save_network(network, output_file)
+    logger.info("TES-SSRC system integration complete")
 
-    # New components filtered by new carriers
-    buses = network_with_modules.buses[network_with_modules.buses.carrier.isin(new)]
-    links = network_with_modules.links[network_with_modules.links.carrier.isin(new)]
-    stores = network_with_modules.stores[network_with_modules.stores.carrier.isin(new)]
-    gens = network_with_modules.generators[network_with_modules.generators.carrier.isin(new)]
 
-    # Inspect
-    print("\n--- BUSES ---")
-    print(buses[["carrier", "x", "y", "v_nom"]])
+if __name__ == "__main__":
+    main()
 
-    print("\n--- LINKS ---")
-    print(
-        links[["bus0", "bus1", "carrier", "p_nom", "efficiency"]]
-        .assign(mw_el=lambda d: d.p_nom * d.efficiency)
-    )
-
-    print("\n--- STORES ---")
-    print(stores[["bus", "carrier", "e_nom", "e_cyclic"]])
-
-    print("\n--- REACTOR ---")
-    print(gens[["bus", "carrier", "p_nom", "p_min_pu", "p_max_pu"]])
-
-    # Check nuclear capacity from original carriers. Should reveal a gap
-    # that is filled by flexible generator to make up total capacity
-    nuclear = network_with_modules.generators[network_with_modules.generators.carrier.str.casefold() == "nuclear"]
-    print(f"\nFleet: {len(nuclear)} generators, {nuclear.p_nom.sum():.1f} MW")
-
-    # -------------------------------------------------------------------------
-    # Solve network: Goal is to verify thermal output remains constant while
-    # electrical output is flexible
-    # -------------------------------------------------------------------------
-    # Solve
-    status, condition = network_with_modules.optimize(solver_name="highs")
-    print(status, condition)
-
-    if status == "ok" and condition == "optimal":
-        n = network_with_modules
-        print("\n--- REACTOR ---")
-        print(n.generators_t.p["FES_nuclear_NGET_Melksham_reactor"].describe())
-        print(n.stores_t.e.describe())
-
-        psrc = "FES_nuclear_NGET_Melksham_psrc"
-        ssrc = n.links[n.links.carrier == carriers["ssrc"]].index
-
-        print("\n--- STORES --- ")
-        # p1 is negative at the output bus, so negate for generation
-        elec = -(n.links_t.p1[psrc] + n.links_t.p1[ssrc].sum(axis=1))
-        print(elec.describe())
 
 
 

@@ -143,11 +143,9 @@ rule finalize_network:
       snakemake resources/network/Historical_2020_clustered.nc --cores 1
     """
     input:
-        network=lambda wildcards: (
-            _clustered_network_output(wildcards.scenario)
-            if _is_clustering_enabled(wildcards.scenario)
-            else f"{resources_path}/network/{wildcards.scenario}_network_demand_renewables_thermal_generators_storage_hydrogen_interconnectors.nc"
-        )
+        # Clustering and TES-SSRC are both handled upstream by add_tes_ssrc,
+        # which is inert when nuclear_tes.enabled is false.
+        network=f"{resources_path}/network/{{scenario}}_network_nucleartes.nc"
     output:
         network=f"{resources_path}/network/{{scenario}}.nc",
         summary=f"{resources_path}/network/{{scenario}}_network_summary.txt"

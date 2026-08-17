@@ -358,6 +358,9 @@ include: "rules/storage.smk"              # Energy storage integration (battery,
 include: "rules/hydrogen.smk"             # Hydrogen system (electrolysis, H2 storage, H2 turbines)
 include: "rules/interconnectors.smk"      # Cross-border interconnections
 include: "rules/solve.smk"                # Network finalization and optimization
+include: "rules/nuclear_tes_ssrc.smk"     # Modular TES-SSRC to couple with nuclear reactor(s)
+                                          # NOTE: must follow solve.smk, which defines
+                                          # SCENARIO_REGEX and the clustering helpers
 include: "rules/analysis.smk"             # Post-solve analysis: spatial plots, dashboards, notebooks
 include: "rules/market.smk"               # Market simulation: wholesale + balancing mechanism
 
