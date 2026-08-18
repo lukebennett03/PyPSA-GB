@@ -537,6 +537,152 @@ HT35_with_disaggregation:
     enabled: true
     components: ["heat_pumps"]
 
+# ══════════════════════════════════════════════════════════════════════════════
+# TES-SSRC INVESTIGATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+HT37_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"  # Invariant under copperplate
+  solve_period:
+    enabled: false
+
+  transmission:
+    min_line_s_nom: 1000000     # copperplate
+
+  # Collapse to 4 copperplate nodes. Lines are relaxed to 1e6 MVA at solve time
+  # regardless, so nothing physical changes -- this is purely what lets PyPSA
+  # aggregate generators and storage by (bus, carrier). Storage is half the LP
+  # and clustering is the ONLY mechanism that aggregates it.
+  #
+  # Do NOT set n_clusters: 1. All nuclear then merges into a single generator
+  # and _handle_fes_nuclear raises ValueError by design, because there is no
+  # remaining fleet to rescale and total nuclear capacity cannot be preserved.
+  clustering:
+    method: kmeans
+    n_clusters: 4
+    random_state: 42
+
+  # Collapse REPD sites by (bus, carrier) before clustering. Capacity is
+  # conserved and the check is logged by integrate_renewable_generators.
+  renewable_aggregation:
+    enabled: true
+
+  # Merges byte-identical components (hashes p_max_pu/p_min_pu). Catches the
+  # ~1600 duplicate biogas / landfill / waste sites.
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    # Clustering renames generators to "<cluster> <carrier>", so the original
+    # FES_nuclear_NGET_Bramford no longer exists. Build the clustered network,
+    # then run:  python tools/inspect_clustered.py --set-target
+    # which fills this line in for you.
+    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+
+HT37_tes5:
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"  # Invariant under copperplate
+  solve_period:
+    enabled: false
+
+  transmission:
+    min_line_s_nom: 1000000     # copperplate
+
+  clustering:
+    method: kmeans
+    n_clusters: 4
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # 5 TES-SSRC modules
+    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+
+HT37_20_clusters_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+HT37_20_clusters_tes5:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
 # ╔════════════════════════════════════════════════════════════════════════════╗
 # ║ TEST SCENARIOS (for CI/CD and quick validation)                            ║
 # ╚════════════════════════════════════════════════════════════════════════════╝

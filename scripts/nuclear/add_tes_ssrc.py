@@ -369,7 +369,7 @@ def _handle_fes_nuclear(
     new_total = network.generators.loc[remaining, "p_nom"].sum() + epr_elec_capacity
 
     # Check scaling has worked
-    if total_capacity != new_total:
+    if not np.isclose(new_total, total_capacity, rtol=1e-9, atol=1e-6):
         raise ValueError(f"After scaling total should be equal. Currently total before scaling: {total_capacity} "
                          f" and total after scaling: {new_total}")
 

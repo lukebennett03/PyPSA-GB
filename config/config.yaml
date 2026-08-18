@@ -17,7 +17,10 @@
 # Multiple scenarios run in parallel based on Snakemake -j flag
 
 run_scenarios:
-  - HT35_reduced
+#  - HT37_counterfactual
+#  - HT37_tes5
+   - HT37_20_clusters_counterfactual
+   - HT37_20_clusters_tes5
 
   # ─── Tutorial scenarios used in documentation ───
   # - Historical_2015_reduced

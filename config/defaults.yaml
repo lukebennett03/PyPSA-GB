@@ -191,7 +191,7 @@ solve_period:
 # These settings allow relaxing transmission constraints for feasibility.
 transmission:
   # Minimum line capacity in MVA (lines below this are set to this value)
-  min_line_s_nom: 0               # 0 = use actual ratings
+  min_line_s_nom: 0          # 0 = use actual ratings
   # Minimum transformer capacity in MVA  
   min_transformer_s_nom: 0        # 0 = use actual ratings
   # Scaling factor for all line/transformer capacities (1.0 = no change)
@@ -685,7 +685,7 @@ market:
 hydro:
   enabled: true
   large_hydro:
-    reservoir_model: true
+    reservoir_model: false
     inflow_profile_factor: 0.55          # Convert p_max_pu profile into effective inflow
     initial_storage_hours: 48.0          # Water already in reservoir at period start
     reservoir_capacity_hours: 168.0      # Approximate upper-reservoir energy capacity
@@ -1047,7 +1047,7 @@ demand_disaggregation:
 
 demand_flexibility:
   # Master switch - must be true for any flexibility to be modeled
-  enabled: false
+  enabled: true
 
   # HEAT PUMP FLEXIBILITY (independently toggleable)
   # Requires heat_pumps in demand_disaggregation.components
@@ -1172,7 +1172,7 @@ demand_flexibility:
   # Saving Sessions style demand response events - DOMESTIC DSR only
   # This represents households reducing demand during peak periods
   event_response:
-    enabled: false                    # Independent toggle for event response
+    enabled: true                    # Independent toggle for event response
     
     # EVENT FREQUENCY MODES (choose one):
     #   "regular"  - 2 events/week YEAR-ROUND (baseline flexibility, constant participation)
@@ -1188,10 +1188,10 @@ demand_flexibility:
     #   ["07:00", "22:00"]  - Full day flexibility (most realistic for modern DSR)
     event_window: ["07:00", "22:00"]  # Default: evening peak window
     
-    dsr_capacity_mw: null             # User-defined domestic DSR capacity (MW)
+    dsr_capacity_mw: 5400      # FES 2024 HT, FLX1, 2037
     # If dsr_capacity_mw is set: Uses that value directly
     # If null: Calculates from participation_rate * max_reduction_fraction * demand
-    participation_rate: 0.33          # Fallback: participation rate (33%)
+    participation_rate: 0.33          # Fallback: participation rate (50%)
     max_reduction_fraction: 0.10      # Fallback: max demand reduction per event (10%)
     marginal_cost: 100.0              # DSR incentive payment (£/MWh) - high cost = only dispatch if needed
     winter_months: [10, 11, 12, 1, 2, 3]  # Oct-Mar for winter mode

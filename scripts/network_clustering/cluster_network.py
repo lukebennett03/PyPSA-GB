@@ -87,8 +87,12 @@ class NetworkClusterer:
             },
             'transformer': {'v_nom': 'max', 's_nom': 'sum'},
             'load': {'p_nom': 'sum'},
-            'generator': {'p_nom': 'sum', 'marginal_cost': 'mean'},
-            'storage_unit': {'p_nom': 'sum', 'max_hours': 'mean'},
+            # marginal_cost / max_hours are deliberately NOT listed here.
+            # PyPSA's own defaults for both are capacity_weighted_average,
+            # which is more faithful than an unweighted mean and conserves
+            # total storage energy. An explicit entry would override them.
+            'generator': {'p_nom': 'sum'},
+            'storage_unit': {'p_nom': 'sum'},
             'store': {'e_nom': 'sum'},
             'link': {'p_nom': 'sum', 'efficiency': 'mean'}
         }
@@ -732,11 +736,80 @@ class NetworkClusterer:
         if 'terrain_factor' in network.lines.columns:
             network.lines['terrain_factor'] = network.lines['terrain_factor'].astype(float).fillna(1.0)
         
+        # -- Fill in aggregation strategies for every remaining one-port column --
+        # PyPSA assigns `consense` to any column without an explicit strategy,
+        # and consense raises as soon as two merged components disagree. Site
+        # metadata (lon/lat, data_source, region, country) always disagrees once
+        # real sites are merged, so every column needs a rule up front or
+        # clustering dies on whichever scenario happens to touch it first.
+        #
+        # Precedence:
+        #   1. explicit entry in self.default_strategies / scenario overrides
+        #   2. PyPSA's DEFAULT_ONE_PORT_STRATEGIES (p_nom: sum, marginal_cost:
+        #      capacity_weighted_average, max_hours: capacity_weighted_average,
+        #      p_max_pu: capacity_weighted_average, ...) - deliberately left alone
+        #   3. EXTENSIVE_ATTRS below - absolute quantities PyPSA has no rule for
+        #   4. numeric -> 'mean';  bool/str/datetime/object -> 'first'
+        #
+        # Time-varying attributes are not covered here: the ones in use
+        # (p_max_pu, p_min_pu, p_set, inflow) are all in PyPSA's defaults.
+        from pypsa.clustering.spatial import DEFAULT_ONE_PORT_STRATEGIES
+
+        # Absolute (extensive) quantities. Averaging these destroys energy:
+        # storage units carrying 82.4 GWh of initial charge would emerge from
+        # clustering with a few hundred MWh.
+        EXTENSIVE_ATTRS = {
+            'state_of_charge_initial': 'sum',   # StorageUnit, MWh
+            'e_initial': 'sum',                 # Store, MWh
+        }
+
+        # self.default_strategies was shallow-copied above, so the per-component
+        # dicts are still shared with the instance attribute. Copy them before
+        # mutating, or edits leak into any later call on the same clusterer.
+        strategies = {
+            k: (dict(v) if isinstance(v, dict) else v)
+            for k, v in strategies.items()
+        }
+
+        _one_ports = {
+            'generator':    network.generators,
+            'storage_unit': network.storage_units,
+            'load':         network.loads,
+            'store':        network.stores,
+        }
+
+        for _key, _df in _one_ports.items():
+            if _df.empty:
+                continue
+            _comp = strategies.setdefault(_key, {})
+            _added = {}
+            for _col in _df.columns:
+                if _col in ('bus', 'carrier'):
+                    continue                                  # groupers
+                if _col in _comp or _col in DEFAULT_ONE_PORT_STRATEGIES:
+                    continue                                  # already handled
+                if _col in EXTENSIVE_ATTRS:
+                    _rule = EXTENSIVE_ATTRS[_col]
+                elif pd.api.types.is_bool_dtype(_df[_col]):
+                    # bools are 'numeric' to pandas; mean would turn a flag
+                    # such as committable into 0.37
+                    _rule = 'first'
+                elif pd.api.types.is_numeric_dtype(_df[_col]):
+                    _rule = 'mean'
+                else:
+                    _rule = 'first'
+                _comp[_col] = _rule
+                _added[_col] = _rule
+            if _added:
+                logger.info(f"Auto aggregation strategies for {_key}: {_added}")
+
         # Perform clustering
         logger.info("Applying PyPSA spatial clustering...")
         clustering = get_clustering_from_busmap(
             network,
             busmap,
+            aggregate_generators_weighted=True,
+            aggregate_one_ports=["Load", "StorageUnit", "Store"],
             bus_strategies=strategies.get('bus', {}),
             line_strategies=strategies.get('line', {}),
             generator_strategies=strategies.get('generator', {}),

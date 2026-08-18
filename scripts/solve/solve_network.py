@@ -314,6 +314,89 @@ def apply_load_shedding_limits(network, logger):
     return True
 
 
+def merge_parallel_links(network, scenario_config, logger):
+    """
+    Collapse identical parallel links into one link carrying the summed p_nom.
+
+    Clustering aggregates generators, storage units and loads, but not links.
+    A network with the hydrogen system enabled therefore carries every per-site
+    H2 turbine through clustering intact.
+
+    Merging is exact, not an approximation. Parallel links sharing bus0, bus1,
+    carrier, efficiency and marginal cost, with no minimum flow, no ramp limits,
+    no unit commitment and no time-varying attributes, are indistinguishable in
+    the LP from a single link whose p_nom is their sum: the feasible set of
+    total flow is the same interval and the cost per unit of flow is identical.
+    The objective is unchanged.
+
+    The guards matter. A non-zero p_min_pu would be relaxed by merging, since
+    each link individually must carry its own minimum whereas the merged link
+    need only carry one. Extendable links must not be merged because their
+    capacities are decision variables. Anything with a time series is left
+    alone because the profiles may differ between members.
+
+    Returns
+    -------
+    int
+        Number of links removed.
+    """
+    links = network.links
+    if links.empty:
+        return 0
+
+    cfg = (scenario_config or {}).get("link_merging", {})
+    if not cfg.get("enabled", True):
+        logger.info("Link merging disabled by configuration")
+        return 0
+
+    # Any link with a time-varying attribute is excluded: members of a group
+    # could carry different profiles and summing p_nom would not reproduce them.
+    time_varying = set()
+    for attr, frame in network.links_t.items():
+        if frame is not None and not frame.empty:
+            time_varying.update(frame.columns)
+
+    mergeable = links[
+        (links.get("p_min_pu", 0) == 0)
+        & (~links.get("committable", pd.Series(False, index=links.index)).astype(bool))
+        & (~links.get("p_nom_extendable", pd.Series(False, index=links.index)).astype(bool))
+        & (~links.index.isin(time_varying))
+    ]
+    if mergeable.empty:
+        return 0
+
+    key_cols = ["bus0", "bus1", "carrier", "efficiency", "marginal_cost"]
+    key_cols = [c for c in key_cols if c in mergeable.columns]
+    groups = mergeable.groupby(key_cols, dropna=False, sort=False)
+
+    removed = 0
+    merged_groups = 0
+    for _, members in groups:
+        if len(members) < 2:
+            continue
+        keep = members.index[0]
+        drop = list(members.index[1:])
+        network.links.at[keep, "p_nom"] = float(members["p_nom"].sum())
+        network.remove("Link", drop)
+        removed += len(drop)
+        merged_groups += 1
+
+    if removed:
+        logger.info("=" * 80)
+        logger.info("MERGING IDENTICAL PARALLEL LINKS")
+        logger.info("=" * 80)
+        logger.info(f"Merged {removed + merged_groups} links into {merged_groups} "
+                    f"({removed} removed)")
+        logger.info(f"Links: {len(links)} -> {len(network.links)}")
+        logger.info(f"LP variables saved: ~{removed * len(network.snapshots):,} "
+                    f"({removed} links x {len(network.snapshots):,} snapshots)")
+        logger.info("Merge is exact - identical bus pair, efficiency and cost, "
+                    "no minimum flow, so the objective is unchanged")
+        logger.info("=" * 80)
+
+    return removed
+
+
 def apply_transmission_relaxation(network, scenario_config, logger):
     """
     Apply transmission constraint relaxation for feasibility.
@@ -1792,6 +1875,11 @@ if __name__ == "__main__":
         # This catches unbounded optimization issues (zero-cost load shedding, zero-cost thermal)
         validate_network_costs(network, logger)
         
+        # Collapse identical parallel links (chiefly unaggregated H2 turbines
+        # surviving clustering). Exact transformation - shrinks the LP without
+        # changing the objective.
+        merge_parallel_links(network, scenario_config, logger)
+
         # Apply transmission constraint relaxation if configured
         # This helps feasibility for detailed networks (ETYS) with tight line limits
         apply_transmission_relaxation(network, scenario_config, logger)
@@ -1982,6 +2070,10 @@ if __name__ == "__main__":
         status, termination_condition = network.optimize(
             solver_name=solver_name,
             solver_options=solver_options,
+            # Hand the problem to the solver in memory instead of writing a
+            # multi-GB LP file and parsing it back (that read raised
+            # 'MemoryError: bad allocation'). Set solver.io_api: lp to restore.
+            io_api=scenario_config.get("solver", {}).get("io_api", "direct"),
             extra_functionality=combine_extra_functionalities(
                 hydro_callback, neso_boundary_callback
             ),
