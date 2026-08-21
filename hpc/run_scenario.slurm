@@ -25,7 +25,7 @@
 #SBATCH -e hpc/logs/%x_%A_%a.err
 #SBATCH -o hpc/logs/%x_%A_%a.out
 # Specify single scenario
-sbatch -a 0
+#SBATCH -a 0
 # Request the partition
 #SBATCH -p nodes           # 'himem' for unclustered / full ETYS
 # Request single node with 42 cores
