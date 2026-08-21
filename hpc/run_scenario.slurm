@@ -86,6 +86,9 @@ export OMP_NUM_THREADS="${SLURM_NTASKS:-42}"
 
 TARGET="resources/network/${SCENARIO}_solved.nc"
 
+# Start timer
+date_start=`date +%s`
+
 snakemake \
     --config scenario="$SCENARIO" \
     --cores "${SLURM_NTASKS:-42}" \
@@ -93,9 +96,23 @@ snakemake \
     --nolock \
     "$TARGET"
 
+# Generate notebooks
+snakemake --config scenario="$SCENARIO" --cores 1 --rerun-triggers mtime --nolock \
+    "resources/analysis/${SCENARIO}_notebook.ipynb" || \
+    echo "WARNING: notebook generation failed for $SCENARIO"
+
+# End timer
+date_end=`date +%s`
+seconds=$((date_end-date_start))
+minutes=$((seconds/60))
+seconds=$((seconds-60*minutes))
+hours=$((minutes/60))
+minutes=$((minutes-60*hours))
+
 echo
 echo "============================================================"
-echo "finished   : $(date)"
+echo "finished : $(date)"
+echo "total run time :  $hours Hours $minutes Minutes $seconds Seconds"
 echo "============================================================"
 
 # Post-solve diagnostics. Non-fatal: a correctness failure should be visible

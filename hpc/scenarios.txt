@@ -9,9 +9,9 @@
 # (FES CSVs, renewable profiles, interconnector tables). Later tasks read them.
 
 # Reproduce all scenarios on HPC before doing new FES sweeps to test arrays
-#HT37_counterfactual
-HT37_tes5
-HT37_20_clusters_counterfactual
-HT37_20_clusters_tes5
+HT37_counterfactual
+# HT37_tes5
+# HT37_20_clusters_counterfactual
+# HT37_20_clusters_tes5
 # HT37_30_counterfactual
 # HT37_30_tes5
