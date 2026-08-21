@@ -1,14 +1,17 @@
 # Scenarios to solve, one per line. Array task N takes line N (0-indexed,
 # ignoring blanks and comments).
 #
-# Submit the FIRST line on its own, wait for it, then submit the rest:
-#   sbatch --array=0 hpc/run_scenario.slurm
-#   sbatch --array=1-7 --dependency=afterok:<jobid> hpc/run_scenario.slurm
+# Submit the FIRST line on its own to build resources properly
+# After submit via array
+#   sbatch -a 0-N --dependency=afterok:<jobid> hpc/run_scenario.slurm
 #
 # The first task generates the shared, non-scenario-specific artefacts
 # (FES CSVs, renewable profiles, interconnector tables). Later tasks read them.
 
-
-HT37_counterfactual  # Replicate on HPC as single run for comparison
+# Reproduce all scenarios on HPC before doing new FES sweeps to test arrays
+#HT37_counterfactual
+HT37_tes5
+HT37_20_clusters_counterfactual
+HT37_20_clusters_tes5
 # HT37_30_counterfactual
 # HT37_30_tes5
