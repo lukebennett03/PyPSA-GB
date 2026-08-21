@@ -33,7 +33,7 @@
 #SBATCH -t 24:00:00
 # Email when done
 #SBATCH --mail-user=lukeBen@liverpool.ac.uk
-#SBATCH --mail-type=END, FAIL
+#SBATCH --mail-type=END,FAIL
 
 
 set -euo pipefail
