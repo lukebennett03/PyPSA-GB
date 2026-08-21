@@ -771,6 +771,63 @@ HT37_30_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
+HT37_unclustered_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generator: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+
+HT37_unclustered_tes5:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generator: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+
+
 # ------------------------------------------------------------------------------
 # Electric Engagement
 # ------------------------------------------------------------------------------
