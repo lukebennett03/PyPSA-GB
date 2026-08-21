@@ -54,9 +54,11 @@ conda activate "$ENV_NAME"
 cd "$REPO"
 mkdir -p hpc/logs
 
-# Blank lines and # comments are ignored so the list stays readable.
-mapfile -t SCENARIOS < <(grep -vE '^\s*(#|$)' "$SCENARIO_LIST")
-SCENARIO="${SCENARIOS[${SLURM_ARRAY_TASK_ID:-0}]}"
+# Strip inline comments and surrounding whitespace, then drop empty lines, so
+# entries can be annotated: "HT37_counterfactual  # comparison run".
+mapfile -t SCENARIOS < <(
+    sed -E 's/#.*//; s/^[[:space:]]+//; s/[[:space:]]+$//; /^$/d' "$SCENARIO_LIST"
+)
 
 echo "============================================================"
 echo "scenario   : $SCENARIO"
@@ -73,10 +75,10 @@ export OMP_NUM_THREADS="${SLURM_NTASKS:-42}"
 TARGET="resources/network/${SCENARIO}_solved.nc"
 
 snakemake \
+    --config scenario="$SCENARIO" \
     --cores "${SLURM_NTASKS:-42}" \
     --rerun-triggers mtime \
     --nolock \
-    --config scenario="$SCENARIO" \
     "$TARGET"
 
 echo
