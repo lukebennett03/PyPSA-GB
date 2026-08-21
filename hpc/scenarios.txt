@@ -8,12 +8,36 @@
 # The first task generates the shared, non-scenario-specific artefacts
 # (FES CSVs, renewable profiles, interconnector tables). Later tasks read them.
 
-# Reproduce all scenarios on HPC before doing new FES sweeps to test arrays
-HT37_counterfactual
-HT37_tes5
+# Reproduce all scenarios on HPC before doing new FES sweeps to test arrays.
+HT37_copperplate_counterfactual
+HT37_copperplate_tes5
 HT37_20_clusters_counterfactual
 HT37_20_clusters_tes5
 
+# 30 Cluster scenarios for FES=HT
+HT37_30_clusters_counterfactual
+HT37_30_clusters_tes5
 
-# HT37_30_counterfactual
-# HT37_30_tes5
+# All clustered scenarios for Electric Engagement
+EE37_copperplate_counterfactual
+EE37_copperplate_tes5
+EE37_20_clusters_counterfactual
+EE37_20_clusters_tes5
+EE37_30_clusters_counterfactual
+EE37_30_clusters_tes5
+
+# All clustered scenarios for Hydrogen Evolution
+HE37_copperplate_counterfactual
+HE37_copperplate_tes5
+HE37_20_clusters_counterfactual
+HE37_20_clusters_tes5
+HE37_30_clusters_counterfactual
+HE37_30_clusters_tes5
+
+# All clustered scenarios for Counterfactual
+CF37_copperplate_counterfactual
+CF37_copperplate_tes5
+CF37_20_clusters_counterfactual
+CF37_20_clusters_tes5
+CF37_30_clusters_counterfactual
+CF37_30_clusters_tes5

@@ -3,14 +3,7 @@ Post-solve diagnostic for TES-SSRC scenario runs.
 
 Usage
 -----
-    python scripts/nuclear/check_tes_run.py                    # all HT37_* runs
-    python scripts/nuclear/check_tes_run.py HT37_counterfactual
-    python scripts/nuclear/check_tes_run.py HT35_reduced --force
-
-With no argument every solved network matching SCENARIO_PREFIX is checked and a
-comparison table is printed against BASELINE_SCENARIO. Scenarios outside the
-prefix are refused unless --force, because resources/network/ still holds runs
-built under earlier configuration whose objectives are not comparable.
+    python scripts/nuclear/check_tes_run.py                    # all runs
 
 Two blocks are reported.
 
@@ -33,7 +26,9 @@ no point running them.
 
 from __future__ import annotations
 
+import re
 import sys
+from collections import OrderedDict
 from pathlib import Path
 
 import numpy as np
@@ -45,11 +40,38 @@ REPO = Path(__file__).resolve().parents[2]
 DEFAULTS = REPO / "config" / "defaults.yaml"
 SCENARIOS = REPO / "config" / "scenarios.yaml"
 
-# Only scenarios beginning with this prefix are checked.
-SCENARIO_PREFIX = "HT37"
+# Only scenarios beginning with one of these are checked. resources/network/
+# accumulates solved networks from earlier work (HT35_*, Historical_*) built
+# under different configuration, whose objectives are not comparable with these.
+# One entry per FES pathway: Holistic Transition, Electric Engagement,
+# Hydrogen Evolution, Counterfactual.
+SCENARIO_PREFIXES = ("HT37", "EE37", "HE37", "CF37")
 
-# Every other scenario's objective is reported as a delta against this one.
-BASELINE_SCENARIO = "HT37_counterfactual"
+# Scenario names are {pathway}{year}[_{network}]_{variant}. Stripping the
+# variant leaves the study key, and scenarios sharing a key form a comparable
+# pair - identical in every respect except the flexibility under test.
+#
+#   HT37_copperplate_counterfactual  -> HT37_copperplate
+#   HT37_copperplate_tes5            -> HT37_copperplate
+#   EE37_20_clusters_counterfactual  -> EE37_20_clusters
+#   CF37_30_clusters_tes5            -> CF37_30_clusters
+#
+# tes\d+ rather than tes5 so the reactor-count series (tes1..tes5) pairs
+# correctly without further edits.
+VARIANT_PATTERN = re.compile(r"_(counterfactual|tes\d+)$")
+BASELINE_VARIANT = "counterfactual"
+
+
+def study_key(scenario: str) -> str | None:
+    """Everything before the variant suffix, or None if the name doesn't match."""
+    match = VARIANT_PATTERN.search(scenario)
+    return scenario[: match.start()] if match else None
+
+
+def baseline_for(scenario: str) -> str | None:
+    """The counterfactual belonging to the same study as this scenario."""
+    key = study_key(scenario)
+    return f"{key}_{BASELINE_VARIANT}" if key else None
 
 # Buses whose name starts with this are foreign nodes behind HVDC
 # interconnectors. They carry carrier "AC" like GB buses do, but they are
@@ -488,12 +510,72 @@ def check_one(scenario: str) -> tuple[int, float | None]:
     return 0, n.objective
 
 
-def discover(prefix: str) -> list[str]:
-    """Solved networks matching the active prefix, oldest naming first."""
+def discover() -> list[str]:
+    """Solved networks matching any active prefix, grouped by study."""
     directory = REPO / "resources" / "network"
-    found = sorted(p.name[: -len("_solved.nc")]
-                   for p in directory.glob(f"{prefix}*_solved.nc"))
-    return found
+    found = {p.name[: -len("_solved.nc")] for p in directory.glob("*_solved.nc")}
+    found = {s for s in found if s.startswith(SCENARIO_PREFIXES)}
+    # Sort by study, then counterfactual before its variants, so the summary
+    # reads in the order the comparisons are made.
+    return sorted(found, key=lambda s: (study_key(s) or s,
+                                        0 if s.endswith(BASELINE_VARIANT) else 1,
+                                        s))
+
+
+def summarise(results: dict[str, tuple[int, float | None]]) -> None:
+    """
+    Report each study's benefit against its own counterfactual.
+
+    A single global baseline cannot work once there is more than one study:
+    comparing a constrained 20-cluster run against a copperplate baseline mixes
+    the network change with the flexibility effect, which is precisely the
+    confound the paired design exists to remove.
+    """
+    _header("SUMMARY")
+
+    studies: OrderedDict[str, list[str]] = OrderedDict()
+    orphans: list[str] = []
+    for scenario in results:
+        key = study_key(scenario)
+        if key is None:
+            orphans.append(scenario)
+        else:
+            studies.setdefault(key, []).append(scenario)
+
+    for key, members in studies.items():
+        baseline_name = f"{key}_{BASELINE_VARIANT}"
+        baseline = results.get(baseline_name, (None, None))[1]
+
+        print()
+        print(f"  {key}")
+        print(f"  {'-' * 74}")
+        print(f"    {'scenario':<40}{'objective GBPm':>16}{'benefit':>14}")
+
+        for scenario in members:
+            code, obj = results[scenario]
+            flag = "" if code == 0 else "  [FAILED]"
+            if obj is None:
+                print(f"    {scenario:<40}{'-':>16}{'no result':>14}{flag}")
+            elif scenario == baseline_name:
+                print(f"    {scenario:<40}{obj / 1e6:>16,.2f}{'baseline':>14}{flag}")
+            elif baseline is None:
+                print(f"    {scenario:<40}{obj / 1e6:>16,.2f}"
+                      f"{'no baseline':>14}{flag}")
+            else:
+                # Benefit is the cost the flexibility avoids, so it is positive
+                # when the objective falls.
+                print(f"    {scenario:<40}{obj / 1e6:>16,.2f}"
+                      f"{(baseline - obj) / 1e6:>+13,.2f}M{flag}")
+
+    if orphans:
+        print()
+        print(f"  Unpaired (name does not end in a known variant): "
+              f"{', '.join(orphans)}")
+
+    print()
+    print("  Benefit is baseline minus scenario: positive means the flexibility")
+    print("  reduced system operating cost. Each study is compared only against")
+    print("  its own counterfactual.")
 
 
 def main() -> int:
@@ -506,43 +588,29 @@ def main() -> int:
 
     if args:
         scenarios = args
-        off_prefix = [s for s in scenarios if not s.startswith(SCENARIO_PREFIX)]
+        off_prefix = [s for s in scenarios if not s.startswith(SCENARIO_PREFIXES)]
         if off_prefix and not force:
-            print(f"Refusing to check {off_prefix}: outside the active prefix "
-                  f"'{SCENARIO_PREFIX}'.")
+            print(f"Refusing to check {off_prefix}: outside the active prefixes "
+                  f"{SCENARIO_PREFIXES}.")
             print("Stale results from earlier work are not comparable against "
                   "the current configuration.")
-            print("Pass --force to override, or edit SCENARIO_PREFIX.")
+            print("Pass --force to override, or edit SCENARIO_PREFIXES.")
             return 2
     else:
-        scenarios = discover(SCENARIO_PREFIX)
+        scenarios = discover()
         if not scenarios:
-            print(f"No solved networks matching '{SCENARIO_PREFIX}*' in "
+            print(f"No solved networks matching {SCENARIO_PREFIXES} in "
                   f"resources/network/")
             return 2
-        print(f"Checking {len(scenarios)} scenario(s) matching "
-              f"'{SCENARIO_PREFIX}*': {', '.join(scenarios)}")
+        print(f"Checking {len(scenarios)} scenario(s) across "
+              f"{len({study_key(s) for s in scenarios})} studies")
 
     results: dict[str, tuple[int, float | None]] = {}
     for scenario in scenarios:
         results[scenario] = check_one(scenario)
 
     if len(results) > 1:
-        _header("SUMMARY")
-        baseline = results.get(BASELINE_SCENARIO, (None, None))[1]
-        print(f"  {'scenario':<34}{'objective GBPm':>17}{'vs baseline':>16}")
-        for scenario, (code, obj) in results.items():
-            if obj is None:
-                print(f"  {scenario:<34}{'-':>17}{'no result':>16}")
-                continue
-            if baseline and scenario != BASELINE_SCENARIO:
-                delta = f"{(obj - baseline) / 1e6:+,.2f}M"
-            else:
-                delta = "baseline" if scenario == BASELINE_SCENARIO else "-"
-            flag = "" if code == 0 else "   [FAILED CHECKS]"
-            print(f"  {scenario:<34}{obj / 1e6:>17,.2f}{delta:>16}{flag}")
-        print()
-        print("  A negative delta is a system cost reduction, i.e. a benefit.")
+        summarise(results)
 
     return max(code for code, _ in results.values())
 
