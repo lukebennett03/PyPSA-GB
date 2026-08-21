@@ -22,7 +22,6 @@
 #SBATCH -J pypsagb
 # Specify where standard error and output should be sent
 # %x: job name, %A: array job id, %a: task index in array
-#SBATCH -e hpc/logs/%x_%A_%a.err
 #SBATCH -o hpc/logs/%x_%A_%a.out
 # Specify single scenario
 #SBATCH -a 0
@@ -34,10 +33,11 @@
 #SBATCH -t 24:00:00
 # Email when done
 #SBATCH --mail-user=lukeBen@liverpool.ac.uk
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=END
 
 
 set -euo pipefail
+export PYTHONUNBUFFERED=1
 
 # The pipeline writes resources/, logs/, benchmarks/ and .snakemake/ inside
 # the repo, so all of it has to sit on scratch.
@@ -59,6 +59,18 @@ mkdir -p hpc/logs
 mapfile -t SCENARIOS < <(
     sed -E 's/#.*//; s/^[[:space:]]+//; s/[[:space:]]+$//; /^$/d' "$SCENARIO_LIST"
 )
+
+if [ "${#SCENARIOS[@]}" -eq 0 ]; then
+    echo "ERROR: no scenarios parsed from $SCENARIO_LIST" >&2
+    exit 1
+fi
+
+SCENARIO="${SCENARIOS[${SLURM_ARRAY_TASK_ID:-0}]:-}"
+if [ -z "$SCENARIO" ]; then
+    echo "ERROR: array index ${SLURM_ARRAY_TASK_ID:-0} out of range" \
+         "(${#SCENARIOS[@]} scenarios in $SCENARIO_LIST)" >&2
+    exit 1
+fi
 
 echo "============================================================"
 echo "scenario   : $SCENARIO"
