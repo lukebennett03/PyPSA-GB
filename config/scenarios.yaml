@@ -736,7 +736,7 @@ HT37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HT37_30_clusters_tes5:
   description: "FES 2024 Holistic Transition 2037 - 30 clusters, full year"
@@ -769,7 +769,7 @@ HT37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HT37_unclustered_counterfactual:
   description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
@@ -1001,7 +1001,7 @@ EE37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 EE37_30_clusters_tes5:
   description: "FES 2024 Electric Engagement 2037 - 30 clusters, full year"
@@ -1034,7 +1034,7 @@ EE37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 # ------------------------------------------------------------------------------
 # Hydrogen Evolution
@@ -1209,7 +1209,7 @@ HE37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HE37_30_clusters_tes5:
   description: "FES 2024 Hydrogen Evolution 2037 - 30 clusters, full year"
@@ -1242,7 +1242,7 @@ HE37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 # ------------------------------------------------------------------------------
 # Counterfactual: Net-zero missed
@@ -1417,7 +1417,7 @@ CF37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 CF37_30_clusters_tes5:
   description: "FES 2024 Counterfactual 2037 - 30 clusters, full year"
@@ -1450,7 +1450,7 @@ CF37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 
 # ╔════════════════════════════════════════════════════════════════════════════╗
