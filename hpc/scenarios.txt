@@ -1,0 +1,14 @@
+# Scenarios to solve, one per line. Array task N takes line N (0-indexed,
+# ignoring blanks and comments).
+#
+# Submit the FIRST line on its own, wait for it, then submit the rest:
+#   sbatch --array=0 hpc/run_scenario.slurm
+#   sbatch --array=1-7 --dependency=afterok:<jobid> hpc/run_scenario.slurm
+#
+# The first task generates the shared, non-scenario-specific artefacts
+# (FES CSVs, renewable profiles, interconnector tables). Later tasks read them.
+
+
+HT37_counterfactual  # Replicate on HPC as single run for comparison
+# HT37_30_counterfactual
+# HT37_30_tes5
