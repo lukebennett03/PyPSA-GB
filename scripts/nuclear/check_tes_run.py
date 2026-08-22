@@ -73,12 +73,18 @@ def baseline_for(scenario: str) -> str | None:
     key = study_key(scenario)
     return f"{key}_{BASELINE_VARIANT}" if key else None
 
-# Buses whose name starts with this are foreign nodes behind HVDC
-# interconnectors. They carry carrier "AC" like GB buses do, but they are
-# separate markets clearing at their own prices, so including them in the
-# copperplate test reports a spread that is physically correct and says nothing
-# about GB's internal network.
-EXTERNAL_BUS_PREFIX = "external"
+# Foreign nodes behind HVDC interconnectors carry carrier "AC" like GB buses
+# do, but they are separate markets clearing at their own prices. Including
+# them reports a spread that is physically correct and says nothing about GB's
+# internal network.
+#
+# Their naming differs by pipeline path, which is why this is a substring test
+# rather than a prefix:
+#   clustered   - cluster_network.py:454 renames them external_{country}_{bus}
+#   unclustered - they keep their build names, e.g. HVDC_External_Norway_Kvilldal
+# A prefix match on "external" silently passes all nine foreign nodes through
+# on unclustered runs, contaminating every price statistic.
+EXTERNAL_BUS_MARKER = "external"
 
 # Carriers that represent electricity. Buses carrying H2, steam or heat price a
 # different commodity entirely and must never enter the comparison.
@@ -237,7 +243,7 @@ def check_copperplate(n: pypsa.Network, cfg: dict,
     electrical = [b for b in mp.columns
                   if n.buses.at[b, "carrier"] in ELECTRICAL_CARRIERS]
     gb = [b for b in electrical
-          if not str(b).startswith(EXTERNAL_BUS_PREFIX)]
+          if EXTERNAL_BUS_MARKER not in str(b).casefold()]
     foreign = [b for b in electrical if b not in gb]
     other = [b for b in mp.columns if b not in electrical]
 
