@@ -45,3 +45,9 @@ CF37_30_clusters_tes5
 # All unclustered scenarios with a reduced layout (32 node)
 HT37_unclustered_counterfactual
 HT37_unclustered_tes5
+EE37_unclustered_counterfactual
+EE37_unclustered_tes5
+HE37_unclustered_counterfactual
+HE37_unclustered_tes5
+CF37_unclustered_counterfactual
+CF37_unclustered_tes5
