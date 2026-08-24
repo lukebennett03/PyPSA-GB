@@ -71,11 +71,26 @@ CF37_unclustered_tes5
 # =========================================================================
 
 # -------------------------------------------------------------------------
-# Holistic Transition
+# Copperplate
 # -------------------------------------------------------------------------
 HT37_r2_copperplate_counterfactual
 HT37_r2_copperplate_tes5
 HT37_r3_copperplate_counterfactual
 HT37_r3_copperplate_tes5
-HT37_r4_copperplate_counterfactual
-HT37_r4_copperplate_tes5
+
+EE37_r2_copperplate_counterfactual
+EE37_r2_copperplate_tes5
+EE37_r3_copperplate_counterfactual
+EE37_r3_copperplate_tes5
+
+HE37_r2_copperplate_counterfactual
+HE37_r2_copperplate_tes5
+HE37_r3_copperplate_counterfactual
+HE37_r3_copperplate_tes5
+
+CF37_r2_copperplate_counterfactual
+CF37_r2_copperplate_tes5
+CF37_r3_copperplate_counterfactual
+CF37_r3_copperplate_tes5
+
+
