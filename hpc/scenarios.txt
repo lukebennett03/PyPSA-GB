@@ -85,12 +85,9 @@ EE37_r3_copperplate_tes5
 
 HE37_r2_copperplate_counterfactual
 HE37_r2_copperplate_tes5
-HE37_r3_copperplate_counterfactual
-HE37_r3_copperplate_tes5
 
 CF37_r2_copperplate_counterfactual
 CF37_r2_copperplate_tes5
-CF37_r3_copperplate_counterfactual
-CF37_r3_copperplate_tes5
+
 
 
