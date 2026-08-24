@@ -831,7 +831,7 @@ HT37_r4_copperplate_counterfactual:
       - cluster_1 nuclear
       - cluster_2 nuclear
       - cluster_3 nuclear # Geography is invariant under copperplate
-      - cluster_4 nuclear
+      - cluster_0 nuclear
 
 HT37_r4_copperplate_tes5:
   description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 2 reactors"
@@ -871,7 +871,7 @@ HT37_r4_copperplate_tes5:
       - cluster_1 nuclear
       - cluster_2 nuclear  # Geography is invariant under copperplate
       - cluster_3 nuclear
-      - cluster_4 nuclear
+      - cluster_0 nuclear
 
 HT37_20_clusters_counterfactual:
   description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year"
