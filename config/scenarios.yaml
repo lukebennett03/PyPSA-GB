@@ -601,7 +601,7 @@ HT37_copperplate_counterfactual:
     # FES_nuclear_NGET_Bramford no longer exists. Build the clustered network,
     # then run:  python tools/inspect_clustered.py --set-target
     # which fills this line in for you.
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 HT37_copperplate_tes5:
   description: "FES 2024 Holistic Transition 2037 - copperplate, full year"
@@ -637,7 +637,83 @@ HT37_copperplate_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # 5 TES-SSRC modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
+
+HT37_r2_copperplate_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"  # Invariant under copperplate
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  transmission:
+    min_line_s_nom: 1000000     # copperplate
+
+  clustering:
+    method: kmeans
+    n_clusters: 4
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - cluster_1 nuclear
+      - cluster_2 nuclear  # Geography is invariant under copperplate
+
+HT37_r2_copperplate_tes5:
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"  # Invariant under copperplate
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  transmission:
+    min_line_s_nom: 1000000     # copperplate
+
+  clustering:
+    method: kmeans
+    n_clusters: 4
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # 5 TES-SSRC modules
+    target_generators:
+      - cluster_1 nuclear
+      - cluster_2 nuclear  # Geography is invariant under copperplate
 
 HT37_20_clusters_counterfactual:
   description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year"
@@ -670,7 +746,7 @@ HT37_20_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 HT37_20_clusters_tes5:
   description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year"
@@ -703,7 +779,7 @@ HT37_20_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 HT37_30_clusters_counterfactual:
   description: "FES 2024 Holistic Transition 2037 - 30 clusters, full year"
@@ -736,7 +812,7 @@ HT37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HT37_30_clusters_tes5:
   description: "FES 2024 Holistic Transition 2037 - 30 clusters, full year"
@@ -769,7 +845,7 @@ HT37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HT37_unclustered_counterfactual:
   description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
@@ -797,7 +873,7 @@ HT37_unclustered_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 HT37_unclustered_tes5:
   description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
@@ -825,7 +901,7 @@ HT37_unclustered_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
 
 
 # ------------------------------------------------------------------------------
@@ -866,7 +942,7 @@ EE37_copperplate_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 EE37_copperplate_tes5:
   description: "FES 2024 Electric Engagement 2037 - copperplate, full year"
@@ -902,7 +978,7 @@ EE37_copperplate_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # 5 TES-SSRC modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 EE37_20_clusters_counterfactual:
   description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year"
@@ -935,7 +1011,7 @@ EE37_20_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 EE37_20_clusters_tes5:
   description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year"
@@ -968,7 +1044,7 @@ EE37_20_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 EE37_30_clusters_counterfactual:
   description: "FES 2024 Electric Engagement 2037 - 30 clusters, full year"
@@ -1001,7 +1077,7 @@ EE37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 EE37_30_clusters_tes5:
   description: "FES 2024 Electric Engagement 2037 - 30 clusters, full year"
@@ -1034,7 +1110,7 @@ EE37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 EE37_unclustered_counterfactual:
   description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes)"
@@ -1062,7 +1138,7 @@ EE37_unclustered_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 EE37_unclustered_tes5:
   description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes)"
@@ -1090,7 +1166,7 @@ EE37_unclustered_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
 
 
 # ------------------------------------------------------------------------------
@@ -1131,7 +1207,7 @@ HE37_copperplate_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 HE37_copperplate_tes5:
   description: "FES 2024 Hydrogen Evolution 2037 - copperplate, full year"
@@ -1167,7 +1243,7 @@ HE37_copperplate_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # 5 TES-SSRC modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 HE37_20_clusters_counterfactual:
   description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year"
@@ -1200,7 +1276,7 @@ HE37_20_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 HE37_20_clusters_tes5:
   description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year"
@@ -1233,7 +1309,7 @@ HE37_20_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 HE37_30_clusters_counterfactual:
   description: "FES 2024 Hydrogen Evolution 2037 - 30 clusters, full year"
@@ -1266,7 +1342,7 @@ HE37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HE37_30_clusters_tes5:
   description: "FES 2024 Hydrogen Evolution 2037 - 30 clusters, full year"
@@ -1299,7 +1375,7 @@ HE37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 HE37_unclustered_counterfactual:
   description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes)"
@@ -1327,7 +1403,7 @@ HE37_unclustered_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 HE37_unclustered_tes5:
   description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes)"
@@ -1355,7 +1431,7 @@ HE37_unclustered_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
 
 # ------------------------------------------------------------------------------
 # Counterfactual: Net-zero missed
@@ -1395,7 +1471,7 @@ CF37_copperplate_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 CF37_copperplate_tes5:
   description: "FES 2024 Counterfactual 2037 - copperplate, full year"
@@ -1431,7 +1507,7 @@ CF37_copperplate_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # 5 TES-SSRC modules
-    target_generator: cluster_1 nuclear  # Geography is invariant under copperplate
+    target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 CF37_20_clusters_counterfactual:
   description: "FES 2024 Counterfactual 2037 - 20 clusters, full year"
@@ -1464,7 +1540,7 @@ CF37_20_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 CF37_20_clusters_tes5:
   description: "FES 2024 Counterfactual 2037 - 20 clusters, full year"
@@ -1497,7 +1573,7 @@ CF37_20_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_13 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
 CF37_30_clusters_counterfactual:
   description: "FES 2024 Counterfactual 2037 - 30 clusters, full year"
@@ -1530,7 +1606,7 @@ CF37_30_clusters_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 CF37_30_clusters_tes5:
   description: "FES 2024 Counterfactual 2037 - 30 clusters, full year"
@@ -1563,7 +1639,7 @@ CF37_30_clusters_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: cluster_17 nuclear  # We use Bramford to model Sizewell.
+    target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
 CF37_unclustered_counterfactual:
   description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes)"
@@ -1591,7 +1667,7 @@ CF37_unclustered_counterfactual:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 0  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 CF37_unclustered_tes5:
   description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes)"
@@ -1619,7 +1695,7 @@ CF37_unclustered_tes5:
   nuclear_tes:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
-    target_generator: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+    target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
 
 
 

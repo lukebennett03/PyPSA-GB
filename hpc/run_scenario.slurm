@@ -24,7 +24,7 @@
 # %x: job name, %A: array job id, %a: task index in array
 #SBATCH -o hpc/logs/%x_%A_%a.out
 # Specify single scenario
-#SBATCH -a 0-31
+#SBATCH -a 0-33
 # Request the partition
 #SBATCH -p nodes           # 'himem' for unclustered / full ETYS
 # Request single node with 42 cores
