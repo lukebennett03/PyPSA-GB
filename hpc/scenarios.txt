@@ -59,10 +59,13 @@ CF37_30_clusters_tes5
 
 HT37_unclustered_counterfactual
 HT37_unclustered_tes5
+
 EE37_unclustered_counterfactual
 EE37_unclustered_tes5
+
 HE37_unclustered_counterfactual
 HE37_unclustered_tes5
+
 CF37_unclustered_counterfactual
 CF37_unclustered_tes5
 
@@ -89,5 +92,49 @@ HE37_r2_copperplate_tes5
 CF37_r2_copperplate_counterfactual
 CF37_r2_copperplate_tes5
 
+# -------------------------------------------------------------------------
+# 20 Clusters
+# -------------------------------------------------------------------------
+HT37_r2_20_clusters_counterfactual
+HT37_r2_20_clusters_tes5
 
+HE37_r2_20_clusters_counterfactual
+HE37_r2_20_clusters_tes5
+
+EE37_r2_20_clusters_counterfactual
+EE37_r2_20_clusters_tes5
+
+CF37_r2_20_clusters_counterfactual
+CF37_r2_20_clusters_tes5
+
+# -------------------------------------------------------------------------
+# 30 Clusters
+# -------------------------------------------------------------------------
+HT37_r2_30_clusters_counterfactual
+HT37_r2_30_clusters_tes5
+
+HE37_r2_30_clusters_counterfactual
+HE37_r2_30_clusters_tes5
+
+EE37_r2_30_clusters_counterfactual
+EE37_r2_30_clusters_tes5
+
+CF37_r2_30_clusters_counterfactual
+CF37_r2_30_clusters_tes5
+
+# =========================================================================
+# Multiple reactors: Unclustered
+# =========================================================================
+
+HT37_r2_unclustered_counterfactual
+HT37_r2_unclustered_tes5
+
+EE37_r2_unclustered_counterfactual
+EE37_r2_unclustered_tes5
+
+HE37_r2_unclustered_counterfactual
+HE37_r2_unclustered_tes5
+
+CF37_r2_unclustered_counterfactual
+CF37_r2_unclustered_tes5
 

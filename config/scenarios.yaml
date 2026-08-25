@@ -720,7 +720,7 @@ HT37_r2_copperplate_tes5:
       - cluster_2 nuclear  # Geography is invariant under copperplate
 
 HT37_r3_copperplate_counterfactual:
-  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 2 reactors"
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 3 reactors"
   modelled_year: 2037
   FES_year: 2024
   FES_scenario: "Holistic Transition"
@@ -759,7 +759,7 @@ HT37_r3_copperplate_counterfactual:
       - cluster_3 nuclear # Geography is invariant under copperplate
 
 HT37_r3_copperplate_tes5:
-  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 2 reactors"
+  description: "FES 2024 Holistic Transition 2037 - copperplate, full year. 3 reactors"
   modelled_year: 2037
   FES_year: 2024
   FES_scenario: "Holistic Transition"
@@ -866,6 +866,76 @@ HT37_20_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
+HT37_r2_20_clusters_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year. 2 clusters"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
+HT37_r2_20_clusters_tes5:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+     - cluster_13 nuclear  # We use Bramford to model Sizewell.
+     - cluster_5 nuclear   # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
@@ -935,6 +1005,76 @@ HT37_30_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
+HT37_r2_30_clusters_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - 30 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
+HT37_r2_30_clusters_tes5:
+  description: "FES 2024 Holistic Transition 2037 - 30 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # Unclustered: 32 nodes
 # ------------------------------------------------------------------------------
@@ -993,6 +1133,66 @@ HT37_unclustered_tes5:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+
+HT37_r2_unclustered_counterfactual:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
+
+HT37_r2_unclustered_tes5:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
 
 # ==============================================================================
 # Electric Engagement
@@ -1296,6 +1496,76 @@ EE37_20_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
+EE37_r2_20_clusters_counterfactual:
+  description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
+EE37_r2_20_clusters_tes5:
+  description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
@@ -1365,6 +1635,76 @@ EE37_30_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
+EE37_r2_30_clusters_counterfactual:
+  description: "FES 2024 Electric Engagement 2037 - 30 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
+EE37_r2_30_clusters_tes5:
+  description: "FES 2024 Electric Engagement 2037 - 30 clusters, full year"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # Unclustered: 32 nodes
 # ------------------------------------------------------------------------------
@@ -1423,6 +1763,66 @@ EE37_unclustered_tes5:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+
+EE37_r2_unclustered_counterfactual:
+  description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Single EPR, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
+
+EE37_r2_unclustered_tes5:
+  description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes)"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Single EPR, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
 
 
 # ==============================================================================
@@ -1649,6 +2049,76 @@ HE37_20_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
+HE37_r2_20_clusters_counterfactual:
+  description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
+HE37_r2_20_clusters_tes5:
+  description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
@@ -1718,6 +2188,76 @@ HE37_30_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
+HE37_r2_30_clusters_counterfactual:
+  description: "FES 2024 Hydrogen Evolution 2037 - 30 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
+HE37_r2_30_clusters_tes5:
+  description: "FES 2024 Hydrogen Evolution 2037 - 30 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # Unclustered: 32 nodes
 # ------------------------------------------------------------------------------
@@ -1776,6 +2316,66 @@ HE37_unclustered_tes5:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+
+HE37_r2_unclustered_counterfactual:
+  description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes). 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
+
+HE37_r2_unclustered_tes5:
+  description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes). 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
 
 # ==============================================================================
 # Counterfactual: Net-zero missed
@@ -2001,6 +2601,76 @@ CF37_20_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
 
+CF37_r2_20_clusters_counterfactual:
+  description: "FES 2024 Counterfactual 2037 - 20 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
+CF37_r2_20_clusters_tes5:
+  description: "FES 2024 Counterfactual 2037 - 20 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - cluster_13 nuclear  # We use Bramford to model Sizewell.
+      - cluster_5 nuclear   # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
@@ -2070,6 +2740,76 @@ CF37_30_clusters_tes5:
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
 
+CF37_r2_30_clusters_counterfactual:
+  description: "FES 2024 Counterfactual 2037 - 30 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
+CF37_r2_30_clusters_tes5:
+  description: "FES 2024 Counterfactual 2037 - 30 clusters, full year. 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 30  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - cluster_17 nuclear  # We use Bramford to model Sizewell.
+      - cluster_23 nuclear  # Melksham for Hinkley
+
 # ------------------------------------------------------------------------------
 # Unclustered: 32 nodes
 # ------------------------------------------------------------------------------
@@ -2128,6 +2868,66 @@ CF37_unclustered_tes5:
     enabled: true
     modules_per_reactor: 5  # Single EPR, no TES modules
     target_generators: FES_nuclear_NGET_Bramford   # We use Bramford to model Sizewell.
+
+CF37_r2_unclustered_counterfactual:
+  description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes). 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 0  # Two EPRs, no TES modules
+    target_generators:
+      - FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
+
+CF37_r2_unclustered_tes5:
+  description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes). 2 reactors"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    modules_per_reactor: 5  # Two EPRs, 5 modules each
+    target_generators:
+      - FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+      - FES_nuclear_NGET_Melksham  # Melksham for Hinkley
 
 
 
