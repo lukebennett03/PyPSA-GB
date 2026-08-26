@@ -1210,8 +1210,25 @@ nuclear_tes:
   reactor_p_nom_th: 4520          # MW thermal (EPR)
   psrc_efficiency: 0.356          # 4520 x 0.356 = 1610 MW electrical
   psrc_p_min_pu: 0.50             # turbine part-load floor
-  fuel_cost_per_mwh_th: null      # GBP/MWh_th; constant output, so cannot
-                                  # affect dispatch
+  fuel_cost_per_mwh_th: 3.56      # GBP/MWh_th -> GBP10/MWh_e at 0.356
+
+  # Reactor operating mode. The default holds thermal output constant, which is
+  # what makes this a storage-coupled architecture: electrical output varies
+  # only through the TES modules.
+  #
+  # Lowering reactor_p_min_pu instead lets the reactor itself throttle, giving
+  # French-style direct cycling with no storage. Set modules_per_reactor to 0
+  # alongside it, so the two mechanisms are never mixed:
+  #   1.0  constant thermal output  (TES-SSRC, and the counterfactual)
+  #   0.50 matches the ~52% electrical floor the 5-module TES design reaches,
+  #        so the flexibility range is held constant and only the mechanism differs
+  #   0.20 approximates the French fleet's routine load-following depth
+  reactor_p_min_pu: 1.0
+
+  # Per-unit of p_nom per hour, applied both up and down. null leaves the
+  # reactor unconstrained between snapshots. This only matters if you want
+  # to test a deliberately slower reactor.
+  reactor_ramp_limit: null
 
   # A "module" is the PAIR of storage units below, matching the two TES/SSRC
   # trains in the source. 5 x (57.7 + 46.2) = 520 MW additional output.

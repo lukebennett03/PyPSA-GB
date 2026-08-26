@@ -8,133 +8,168 @@
 # The first task generates the shared, non-scenario-specific artefacts
 # (FES CSVs, renewable profiles, interconnector tables). Later tasks read them.
 
+# ══════════════════════════════════════════════════════════════════════════════
+# TES-SSRC SCENARIOS
+# ══════════════════════════════════════════════════════════════════════════════
 
-# =========================================================================
-# Single reactor: Clustered
-# =========================================================================
+    # =========================================================================
+    # Single reactor: Clustered
+    # =========================================================================
 
-# -------------------------------------------------------------------------
-# Holistic Transition
-# -------------------------------------------------------------------------
-HT37_copperplate_counterfactual
-HT37_copperplate_tes5
-HT37_20_clusters_counterfactual
-HT37_20_clusters_tes5
-HT37_30_clusters_counterfactual
-HT37_30_clusters_tes5
+        # -------------------------------------------------------------------------
+        # Holistic Transition
+        # -------------------------------------------------------------------------
+        HT37_copperplate_counterfactual
+        HT37_copperplate_tes5
+        HT37_20_clusters_counterfactual
+        HT37_20_clusters_tes5
+        HT37_30_clusters_counterfactual
+        HT37_30_clusters_tes5
 
-# -------------------------------------------------------------------------
-# Electric Engagement
-# -------------------------------------------------------------------------
-EE37_copperplate_counterfactual
-EE37_copperplate_tes5
-EE37_20_clusters_counterfactual
-EE37_20_clusters_tes5
-EE37_30_clusters_counterfactual
-EE37_30_clusters_tes5
+        # -------------------------------------------------------------------------
+        # Electric Engagement
+        # -------------------------------------------------------------------------
+        EE37_copperplate_counterfactual
+        EE37_copperplate_tes5
+        EE37_20_clusters_counterfactual
+        EE37_20_clusters_tes5
+        EE37_30_clusters_counterfactual
+        EE37_30_clusters_tes5
 
-# -------------------------------------------------------------------------
-# Hydrogen Evolution
-# -------------------------------------------------------------------------
-HE37_copperplate_counterfactual
-HE37_copperplate_tes5
-HE37_20_clusters_counterfactual
-HE37_20_clusters_tes5
-HE37_30_clusters_counterfactual
-HE37_30_clusters_tes5
+        # -------------------------------------------------------------------------
+        # Hydrogen Evolution
+        # -------------------------------------------------------------------------
+        HE37_copperplate_counterfactual
+        HE37_copperplate_tes5
+        HE37_20_clusters_counterfactual
+        HE37_20_clusters_tes5
+        HE37_30_clusters_counterfactual
+        HE37_30_clusters_tes5
 
-# -------------------------------------------------------------------------
-# Holistic Transition
-# -------------------------------------------------------------------------
-CF37_copperplate_counterfactual
-CF37_copperplate_tes5
-CF37_20_clusters_counterfactual
-CF37_20_clusters_tes5
-CF37_30_clusters_counterfactual
-CF37_30_clusters_tes5
+        # -------------------------------------------------------------------------
+        # Holistic Transition
+        # -------------------------------------------------------------------------
+        CF37_copperplate_counterfactual
+        CF37_copperplate_tes5
+        CF37_20_clusters_counterfactual
+        CF37_20_clusters_tes5
+        CF37_30_clusters_counterfactual
+        CF37_30_clusters_tes5
 
-# =========================================================================
-# Single reactor: Unclustered
-# =========================================================================
+    # =========================================================================
+    # Single reactor: Unclustered
+    # =========================================================================
 
-HT37_unclustered_counterfactual
-HT37_unclustered_tes5
+        HT37_unclustered_counterfactual
+        HT37_unclustered_tes5
 
-EE37_unclustered_counterfactual
-EE37_unclustered_tes5
+        EE37_unclustered_counterfactual
+        EE37_unclustered_tes5
 
-HE37_unclustered_counterfactual
-HE37_unclustered_tes5
+        HE37_unclustered_counterfactual
+        HE37_unclustered_tes5
 
-CF37_unclustered_counterfactual
-CF37_unclustered_tes5
+        CF37_unclustered_counterfactual
+        CF37_unclustered_tes5
 
-# =========================================================================
-# Multiple reactors: Clustered
-# =========================================================================
+    # =========================================================================
+    # Multiple reactors: Clustered
+    # =========================================================================
 
-# -------------------------------------------------------------------------
-# Copperplate
-# -------------------------------------------------------------------------
-HT37_r2_copperplate_counterfactual
-HT37_r2_copperplate_tes5
-HT37_r3_copperplate_counterfactual
-HT37_r3_copperplate_tes5
+        # -------------------------------------------------------------------------
+        # Copperplate
+        # -------------------------------------------------------------------------
+        HT37_r2_copperplate_counterfactual
+        HT37_r2_copperplate_tes5
 
-EE37_r2_copperplate_counterfactual
-EE37_r2_copperplate_tes5
-EE37_r3_copperplate_counterfactual
-EE37_r3_copperplate_tes5
+        EE37_r2_copperplate_counterfactual
+        EE37_r2_copperplate_tes5
 
-HE37_r2_copperplate_counterfactual
-HE37_r2_copperplate_tes5
+        HE37_r2_copperplate_counterfactual
+        HE37_r2_copperplate_tes5
 
-CF37_r2_copperplate_counterfactual
-CF37_r2_copperplate_tes5
+        CF37_r2_copperplate_counterfactual
+        CF37_r2_copperplate_tes5
 
-# -------------------------------------------------------------------------
-# 20 Clusters
-# -------------------------------------------------------------------------
-HT37_r2_20_clusters_counterfactual
-HT37_r2_20_clusters_tes5
+        # -------------------------------------------------------------------------
+        # 20 Clusters
+        # -------------------------------------------------------------------------
+        HT37_r2_20_clusters_counterfactual
+        HT37_r2_20_clusters_tes5
 
-HE37_r2_20_clusters_counterfactual
-HE37_r2_20_clusters_tes5
+        HE37_r2_20_clusters_counterfactual
+        HE37_r2_20_clusters_tes5
 
-EE37_r2_20_clusters_counterfactual
-EE37_r2_20_clusters_tes5
+        EE37_r2_20_clusters_counterfactual
+        EE37_r2_20_clusters_tes5
 
-CF37_r2_20_clusters_counterfactual
-CF37_r2_20_clusters_tes5
+        CF37_r2_20_clusters_counterfactual
+        CF37_r2_20_clusters_tes5
 
-# -------------------------------------------------------------------------
-# 30 Clusters
-# -------------------------------------------------------------------------
-HT37_r2_30_clusters_counterfactual
-HT37_r2_30_clusters_tes5
+        # -------------------------------------------------------------------------
+        # 30 Clusters
+        # -------------------------------------------------------------------------
+        HT37_r2_30_clusters_counterfactual
+        HT37_r2_30_clusters_tes5
 
-HE37_r2_30_clusters_counterfactual
-HE37_r2_30_clusters_tes5
+        HE37_r2_30_clusters_counterfactual
+        HE37_r2_30_clusters_tes5
 
-EE37_r2_30_clusters_counterfactual
-EE37_r2_30_clusters_tes5
+        EE37_r2_30_clusters_counterfactual
+        EE37_r2_30_clusters_tes5
 
-CF37_r2_30_clusters_counterfactual
-CF37_r2_30_clusters_tes5
+        CF37_r2_30_clusters_counterfactual
+        CF37_r2_30_clusters_tes5
 
-# =========================================================================
-# Multiple reactors: Unclustered
-# =========================================================================
+    # =========================================================================
+    # Multiple reactors: Unclustered
+    # =========================================================================
 
-HT37_r2_unclustered_counterfactual
-HT37_r2_unclustered_tes5
+        HT37_r2_unclustered_counterfactual
+        HT37_r2_unclustered_tes5
 
-EE37_r2_unclustered_counterfactual
-EE37_r2_unclustered_tes5
+        EE37_r2_unclustered_counterfactual
+        EE37_r2_unclustered_tes5
 
-HE37_r2_unclustered_counterfactual
-HE37_r2_unclustered_tes5
+        HE37_r2_unclustered_counterfactual
+        HE37_r2_unclustered_tes5
 
-CF37_r2_unclustered_counterfactual
-CF37_r2_unclustered_tes5
+        CF37_r2_unclustered_counterfactual
+        CF37_r2_unclustered_tes5
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FRENCH-STYLE DIRECT RAMPING SCENARIOS
+# ══════════════════════════════════════════════════════════════════════════════
+
+    # -------------------------------------------------------------------------
+    # Holistic Transition
+    # -------------------------------------------------------------------------
+    HT37_copperplate_french50
+    HT37_copperplate_french20
+    HT37_30_clusters_french50
+    HT37_30_clusters_french50
+
+    # -------------------------------------------------------------------------
+    # Electric Engagement
+    # -------------------------------------------------------------------------
+    EE37_copperplate_french50
+    EE37_copperplate_french20
+    EE37_30_clusters_french50
+    EE37_30_clusters_french50
+
+    # -------------------------------------------------------------------------
+    # Hydrogen Evolution
+    # -------------------------------------------------------------------------
+    HE37_copperplate_french50
+    HE37_copperplate_french20
+    HE37_30_clusters_french50
+    HE37_30_clusters_french50
+
+    # -------------------------------------------------------------------------
+    # Counterfactual
+    # -------------------------------------------------------------------------
+    CF37_copperplate_french50
+    CF37_copperplate_french20
+    CF37_30_clusters_french50
+    CF37_30_clusters_french50
 

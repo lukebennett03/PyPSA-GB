@@ -21,8 +21,10 @@ run_scenarios:
 #  - HT37_copperplate_tes5
 #   - HT37_20_clusters_counterfactual
 #  - HT37_20_clusters_tes5
-   - HT37_r2_copperplate_counterfactual
-   - HT37_r2_copperplate_tes5
+#   - HT37_r2_copperplate_counterfactual
+#   - HT37_r2_copperplate_tes5
+  - HT37_copperplate_french50
+  - HT37_copperplate_french20
 
   # ─── Tutorial scenarios used in documentation ───
   # - Historical_2015_reduced

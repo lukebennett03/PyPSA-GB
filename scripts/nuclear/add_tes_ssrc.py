@@ -472,9 +472,11 @@ def _add_reactor_psrc(
                 bus=steam_bus,
                 carrier=resolved_carriers["steam"],
                 p_nom=reactor_p_nom_th,
-                p_min_pu=1.0,
+                p_min_pu=cfg.get("reactor_p_min_pu", 1.0),  # Default to 1.0 if empty
                 p_max_pu=1.0,
-                )
+                ramp_limit_up=cfg.get("reactor_ramp_limit"),
+                ramp_limit_down=cfg.get("reactor_ramp_limit"),
+                marginal_cost=cfg.get("fuel_cost_per_mwh_th") or 0.0,)
     logger.info(f"Added reactor generator")
 
 def _add_module(
@@ -666,7 +668,7 @@ def _validate(
         )
 
     # -------------------------------------------------------------------------
-    # Reactor holds constant thermal output
+    # Reactor holds constant thermal output: Only relevant for TES-SSRC modules
     # -------------------------------------------------------------------------
     # p_min_pu == p_max_pu == 1.0 is what makes this storage-coupled rather than
     # direct reactor flexing. Without it the optimiser throttles the reactor
@@ -679,10 +681,11 @@ def _validate(
 
         reactor_row = network.generators.loc[reactor]
 
-        if not (reactor_row["p_min_pu"] == 1.0 and reactor_row["p_max_pu"] == 1.0):
+        expected_min = float(cfg.get("reactor_p_min_pu", 1.0))
+        if not (reactor_row["p_min_pu"] == expected_min and reactor_row["p_max_pu"] == 1.0):
             raise ValueError(
-                f"{reactor}: expected p_min_pu = p_max_pu = 1.0, found "
-                f"{reactor_row['p_min_pu']} and {reactor_row['p_max_pu']}"
+                f"{reactor}: expected p_min_pu = {expected_min}, p_max_pu = 1.0, "
+                f"found {reactor_row['p_min_pu']} and {reactor_row['p_max_pu']}"
             )
 
         if reactor_row["p_nom"] != cfg["reactor_p_nom_th"]:

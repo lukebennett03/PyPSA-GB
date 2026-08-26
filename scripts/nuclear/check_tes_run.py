@@ -58,7 +58,7 @@ SCENARIO_PREFIXES = ("HT37", "EE37", "HE37", "CF37")
 #
 # tes\d+ rather than tes5 so the reactor-count series (tes1..tes5) pairs
 # correctly without further edits.
-VARIANT_PATTERN = re.compile(r"_(counterfactual|tes\d+)$")
+VARIANT_PATTERN = re.compile(r"_(counterfactual|tes\d+|french\d+)$")
 BASELINE_VARIANT = "counterfactual"
 
 
@@ -174,47 +174,90 @@ def label(bus: str, busmap: dict[str, list[str]]) -> str:
 # CORRECTNESS
 # =============================================================================
 def check_reactor(n: pypsa.Network, cfg: dict) -> dict:
-    """Reactor holds constant thermal output; PSRC pinned only when no modules."""
-    reactors = n.generators.index[n.generators.index.str.endswith("_reactor")]
-    if not len(reactors):
+    """
+    Assert the reactor behaved as its configuration specifies.
+
+    Two operating modes have to be distinguished, or the check contradicts the
+    scenario it is checking:
+
+      reactor_p_min_pu == 1.0   storage-coupled. Thermal output is constant and
+                                any deviation is a bug. With no modules the PSRC
+                                is pinned too, since bus balance leaves it no
+                                alternative outlet.
+      reactor_p_min_pu <  1.0   French-style direct cycling. Thermal output is
+                                *meant* to vary; what matters is that it stays
+                                inside the permitted band, and that it actually
+                                moved rather than sitting at full output all
+                                year - the latter would mean the mechanism never
+                                engaged and the run says nothing.
+
+    Every reactor is checked, not just the first: at N > 1 a fault in reactors
+    2..N would otherwise pass silently.
+    """
+    reactors = sorted(n.generators.index[n.generators.index.str.endswith("_reactor")])
+    if not reactors:
         _report(False, "reactor present", "no *_reactor generator found")
         return {}
 
-    reactor = reactors[0]
-    stem = reactor[: -len("_reactor")]
     p_nom_th = float(cfg["reactor_p_nom_th"])
+    reactor_min = float(cfg.get("reactor_p_min_pu", 1.0))
+    constant_mode = reactor_min == 1.0
+    stem = reactors[0][: -len("_reactor")]
 
-    series = n.generators_t.p[reactor]
-    flat = np.allclose(series.values, p_nom_th, atol=1e-3)
-    _report(
-        flat,
-        "reactor holds constant thermal output",
-        f"{series.min():,.1f} - {series.max():,.1f} MW_th (expected {p_nom_th:,.0f})",
-    )
-
-    psrc = f"{stem}_psrc"
-    if psrc not in n.links.index:
-        _report(False, "PSRC link present", f"{psrc} missing")
-        return {"stem": stem}
-
-    # Delivered electricity is -p1 by PyPSA sign convention.
-    psrc_el = -n.links_t.p1[psrc]
+    # Modules are counted per reactor: the charge links span all of them.
     charge_links = n.links.index[n.links.index.str.contains("_charge")]
     n_modules = 0
     if len(charge_links):
-        n_modules = len({c.split("_unit_")[0] for c in charge_links})
+        n_modules = len({c.split("_unit_")[0] for c in charge_links}) // len(reactors)
 
-    if n_modules == 0:
-        expected = p_nom_th * float(cfg["psrc_efficiency"])
-        pinned = np.allclose(psrc_el.values, expected, atol=1.0)
-        _report(
-            pinned,
-            "PSRC pinned at full output (counterfactual must-run)",
-            f"{psrc_el.min():,.1f} - {psrc_el.max():,.1f} MW_e (expected {expected:,.1f})",
-        )
-    else:
-        print(f"{INFO} {n_modules} TES modules present - PSRC free to throttle "
-              f"({psrc_el.min():,.1f} - {psrc_el.max():,.1f} MW_e)")
+    lo = reactor_min * p_nom_th
+    for reactor in reactors:
+        series = n.generators_t.p[reactor]
+        label = reactor if len(reactors) > 1 else "reactor"
+
+        if constant_mode:
+            _report(
+                np.allclose(series.values, p_nom_th, atol=1e-3),
+                f"{label} holds constant thermal output",
+                f"{series.min():,.1f} - {series.max():,.1f} MW_th "
+                f"(expected {p_nom_th:,.0f})",
+            )
+        else:
+            _report(
+                series.min() >= lo - 1e-3 and series.max() <= p_nom_th + 1e-3,
+                f"{label} cycles within {reactor_min:.0%}-100% of thermal rating",
+                f"{series.min():,.1f} - {series.max():,.1f} MW_th "
+                f"(allowed {lo:,.1f} - {p_nom_th:,.0f})",
+            )
+            # A run that never left full output has tested nothing. Not a
+            # correctness failure - the optimiser may legitimately decline to
+            # throttle - but it must not pass unremarked.
+            if np.allclose(series.values, p_nom_th, atol=1e-3):
+                print(f"{WARN} {label} never throttled - flexibility unused, "
+                      f"benefit against the counterfactual will be zero")
+
+        psrc = f"{reactor[: -len('_reactor')]}_psrc"
+        if psrc not in n.links.index:
+            _report(False, f"{label} PSRC link present", f"{psrc} missing")
+            continue
+
+        # Delivered electricity is -p1 by PyPSA sign convention.
+        psrc_el = -n.links_t.p1[psrc]
+        if constant_mode and n_modules == 0:
+            expected = p_nom_th * float(cfg["psrc_efficiency"])
+            _report(
+                np.allclose(psrc_el.values, expected, atol=1.0),
+                f"{label} PSRC pinned at full output (counterfactual must-run)",
+                f"{psrc_el.min():,.1f} - {psrc_el.max():,.1f} MW_e "
+                f"(expected {expected:,.1f})",
+            )
+        else:
+            reason = (f"{n_modules} TES modules present" if n_modules
+                      else f"reactor floor {reactor_min:.0%}")
+            print(f"{INFO} {label} PSRC free to throttle ({reason}): "
+                  f"{psrc_el.min():,.1f} - {psrc_el.max():,.1f} MW_e")
+
+    psrc_el = -n.links_t.p1[f"{stem}_psrc"] if f"{stem}_psrc" in n.links.index else None
 
     return {"stem": stem, "psrc_el": psrc_el, "n_modules": n_modules}
 
