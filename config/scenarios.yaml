@@ -3024,6 +3024,79 @@ HT37_copperplate_french20:
     target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 # ------------------------------------------------------------------------------
+# 20 Clusters
+# ------------------------------------------------------------------------------
+HT37_20_clusters_french50:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year. 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+HT37_20_clusters_french20:
+  description: "FES 2024 Holistic Transition 2037 - 20 clusters, full year. 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
 HT37_30_clusters_french50:
@@ -3095,6 +3168,69 @@ HT37_30_clusters_french20:
     psrc_p_min_pu: 0.20
     modules_per_reactor: 0
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
+# Unclustered: 32 nodes
+# ------------------------------------------------------------------------------
+HT37_unclustered_french50:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes). 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+
+HT37_unclustered_french20:
+  description: "FES 2024 Holistic Transition 2037 - unclustered reduced modal (32 nodes). 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Holistic Transition"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 # ==============================================================================
 # Electric Engagement
@@ -3180,6 +3316,79 @@ EE37_copperplate_french20:
     target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 # ------------------------------------------------------------------------------
+# 20 Clusters
+# ------------------------------------------------------------------------------
+EE37_20_clusters_french50:
+  description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year. 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+EE37_20_clusters_french20:
+  description: "FES 2024 Electric Engagement 2037 - 20 clusters, full year. 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
 EE37_30_clusters_french50:
@@ -3251,6 +3460,69 @@ EE37_30_clusters_french20:
     psrc_p_min_pu: 0.20
     modules_per_reactor: 0
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
+# Unclustered: 32 nodes
+# ------------------------------------------------------------------------------
+EE37_unclustered_french50:
+  description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes). 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+
+EE37_unclustered_french20:
+  description: "FES 2024 Electric Engagement 2037 - unclustered reduced modal (32 nodes). 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Electric Engagement"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 # ==============================================================================
 # Hydrogen Evolution
@@ -3336,6 +3608,79 @@ HE37_copperplate_french20:
     target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 # ------------------------------------------------------------------------------
+# 20 Clusters
+# ------------------------------------------------------------------------------
+HE37_20_clusters_french50:
+  description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year. 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+HE37_20_clusters_french20:
+  description: "FES 2024 Hydrogen Evolution 2037 - 20 clusters, full year. 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
 HE37_30_clusters_french50:
@@ -3407,6 +3752,69 @@ HE37_30_clusters_french20:
     psrc_p_min_pu: 0.20
     modules_per_reactor: 0
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
+# Unclustered: 32 nodes
+# ------------------------------------------------------------------------------
+HE37_unclustered_french50:
+  description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes). 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+
+HE37_unclustered_french20:
+  description: "FES 2024 Hydrogen Evolution 2037 - unclustered reduced modal (32 nodes). 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Hydrogen Evolution"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 # ==============================================================================
 # Counterfactual: Net-zero missed
@@ -3492,6 +3900,79 @@ CF37_copperplate_french20:
     target_generators: cluster_1 nuclear  # Geography is invariant under copperplate
 
 # ------------------------------------------------------------------------------
+# 20 Clusters
+# ------------------------------------------------------------------------------
+CF37_20_clusters_french50:
+  description: "FES 2024 Counterfactual 2037 - 20 clusters, full year. 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+CF37_20_clusters_french20:
+  description: "FES 2024 Counterfactual 2037 - 20 clusters, full year. 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    method: kmeans
+    n_clusters: 20  # Brings us closer to a reduced network topology
+    random_state: 42
+
+  renewable_aggregation:
+    enabled: true
+
+  component_aggregation:
+    enabled: true
+    include_generators: true
+    include_storage_units: true
+    include_loads: true
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: cluster_13 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
 # 30 Clusters
 # ------------------------------------------------------------------------------
 CF37_30_clusters_french50:
@@ -3563,6 +4044,69 @@ CF37_30_clusters_french20:
     psrc_p_min_pu: 0.20
     modules_per_reactor: 0
     target_generators: cluster_17 nuclear  # We use Bramford to model Sizewell.
+
+# ------------------------------------------------------------------------------
+# Unclustered: 32 nodes
+# ------------------------------------------------------------------------------
+CF37_unclustered_french50:
+  description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes). 50% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.50
+    psrc_p_min_pu: 0.50
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
+
+CF37_unclustered_french20:
+  description: "FES 2024 Counterfactual 2037 - unclustered reduced modal (32 nodes). 20% Min"
+  modelled_year: 2037
+  FES_year: 2024
+  FES_scenario: "Counterfactual"
+  renewables_year: 2022
+  demand_year: 2022
+  network_model: "Reduced"
+  solve_period:
+    enabled: false
+  solver:
+    name: "highs"
+    threads: 42
+
+  clustering:
+    enabled: false
+
+  renewable_aggregation:
+    enabled: false
+
+  component_aggregation:
+    enabled: false
+
+  nuclear_tes:
+    enabled: true
+    reactor_p_min_pu: 0.20
+    psrc_p_min_pu: 0.20
+    modules_per_reactor: 0
+    target_generators: FES_nuclear_NGET_Bramford  # We use Bramford to model Sizewell.
 
 # ╔════════════════════════════════════════════════════════════════════════════╗
 # ║ TEST SCENARIOS (for CI/CD and quick validation)                            ║

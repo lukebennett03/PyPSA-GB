@@ -141,35 +141,63 @@
 # FRENCH-STYLE DIRECT RAMPING SCENARIOS
 # ══════════════════════════════════════════════════════════════════════════════
 
-    # -------------------------------------------------------------------------
-    # Holistic Transition
-    # -------------------------------------------------------------------------
-    HT37_copperplate_french50
-    HT37_copperplate_french20
-    HT37_30_clusters_french50
-    HT37_30_clusters_french50
+    # =========================================================================
+    # Single reactor: Clustered
+    # =========================================================================
 
-    # -------------------------------------------------------------------------
-    # Electric Engagement
-    # -------------------------------------------------------------------------
-    EE37_copperplate_french50
-    EE37_copperplate_french20
-    EE37_30_clusters_french50
-    EE37_30_clusters_french50
+        # -------------------------------------------------------------------------
+        # Holistic Transition
+        # -------------------------------------------------------------------------
+        HT37_copperplate_french50
+        HT37_copperplate_french20
+        HT37_20_clusters_french50
+        HT37_20_clusters_french20
+        HT37_30_clusters_french50
+        HT37_30_clusters_french50
 
-    # -------------------------------------------------------------------------
-    # Hydrogen Evolution
-    # -------------------------------------------------------------------------
-    HE37_copperplate_french50
-    HE37_copperplate_french20
-    HE37_30_clusters_french50
-    HE37_30_clusters_french50
+        # -------------------------------------------------------------------------
+        # Electric Engagement
+        # -------------------------------------------------------------------------
+        EE37_copperplate_french50
+        EE37_copperplate_french20
+        EE37_20_clusters_french50
+        EE37_20_clusters_french20
+        EE37_30_clusters_french50
+        EE37_30_clusters_french50
 
-    # -------------------------------------------------------------------------
-    # Counterfactual
-    # -------------------------------------------------------------------------
-    CF37_copperplate_french50
-    CF37_copperplate_french20
-    CF37_30_clusters_french50
-    CF37_30_clusters_french50
+        # -------------------------------------------------------------------------
+        # Hydrogen Evolution
+        # -------------------------------------------------------------------------
+        HE37_copperplate_french50
+        HE37_copperplate_french20
+        HE37_20_clusters_french50
+        HE37_20_clusters_french20
+        HE37_30_clusters_french50
+        HE37_30_clusters_french50
+
+        # -------------------------------------------------------------------------
+        # Counterfactual
+        # -------------------------------------------------------------------------
+        CF37_copperplate_french50
+        CF37_copperplate_french20
+        CF37_20_clusters_french50
+        CF37_20_clusters_french20
+        CF37_30_clusters_french50
+        CF37_30_clusters_french50
+
+    # =========================================================================
+    # Single reactor: Unclustered
+    # =========================================================================
+
+        HT37_unclustered_french50
+        HT37_unclustered_french20
+
+        EE37_unclustered_french50
+        EE37_unclustered_french20
+
+        HE37_unclustered_french50
+        HE37_unclustered_french20
+
+        CF37_unclustered_french50
+        CF37_unclustered_french20
 
