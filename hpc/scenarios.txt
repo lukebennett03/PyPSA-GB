@@ -163,7 +163,7 @@
         EE37_20_clusters_french50
         EE37_20_clusters_french20
         EE37_30_clusters_french50
-        EE37_30_clusters_french50
+        EE37_30_clusters_french20
 
         # -------------------------------------------------------------------------
         # Hydrogen Evolution
@@ -173,7 +173,7 @@
         HE37_20_clusters_french50
         HE37_20_clusters_french20
         HE37_30_clusters_french50
-        HE37_30_clusters_french50
+        HE37_30_clusters_french20
 
         # -------------------------------------------------------------------------
         # Counterfactual
@@ -183,7 +183,7 @@
         CF37_20_clusters_french50
         CF37_20_clusters_french20
         CF37_30_clusters_french50
-        CF37_30_clusters_french50
+        CF37_30_clusters_french20
 
     # =========================================================================
     # Single reactor: Unclustered
