@@ -4,6 +4,7 @@
 
 resources/
 logs/
+summary/
 
 # random folders
 .ipynb_checkpoints/
